@@ -573,6 +573,26 @@ unset OLD_PKGDIR
         </xsl:choose>
         <xsl:text>&#xA;</xsl:text>
       </xsl:when><!-- temp chapters install -->
+      <!-- In jhalfs chaningowner is executed AFTER userdel lfs
+           so chown \-\- from lfs errors out.  -->
+      <xsl:when test="contains(string(),'--from lfs')">
+        <xsl:copy-of select="substring-before(string(), '--from lfs')"/>
+        <xsl:choose>
+          <xsl:when test="contains(substring-after(string(),'--from lfs'),
+                                   '--from lfs')">
+            <xsl:copy-of select="substring-before(
+                                   substring-after(string(),'--from lfs'),
+                                   '--from lfs')"/>
+            <xsl:copy-of select="substring-after(
+                                   substring-after(string(),'--from lfs'),
+                                   '--from lfs')"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:copy-of select="string()"/>
+          </xsl:otherwise>
+        </xsl:choose>
+        <xsl:text>&#xA;</xsl:text>
+      </xsl:when>
       <!-- The rest of commands -->
       <xsl:otherwise>
         <xsl:apply-templates/>
