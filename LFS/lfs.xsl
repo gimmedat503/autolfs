@@ -1166,6 +1166,7 @@ LOGLEVEL="</xsl:text>
             <xsl:value-of select="$instructions"/>
             <xsl:if
               test="not(contains($instructions, '&gt;&gt;')) and
+                    not(contains($instructions, '&gt; /')) and
                     not($eof-seen) and
                     substring($instructions,
                               string-length($instructions)) != '\'">
