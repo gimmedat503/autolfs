@@ -109,7 +109,8 @@ cat >tmpfile << EOF
 EOF
 for file in $(ls ${BLFS_DIR}/x/installing/x7* | grep -v x7driver) \
 	    ${BLFS_DIR}/kde/kf5/kf5-frameworks.xml                \
-	    ${BLFS_DIR}/kde/plasma5/plasma-all.xml; do
+            ${BLFS_DIR}/kde/plasma5/plasma-all.xml                \
+            ${BLFS_DIR}/x/installing/xcb-utilities.xml; do
   id=$(grep xreflabel $file | sed 's@.*id="\([^"]*\).*@\1@')
   cat >>$SPECIAL_FILE << EOF
     <xsl:when test="@id='$id'">
@@ -137,7 +138,7 @@ EOF
 
   precpack=NONE
   for pack in $list_cat; do
-    if grep -q x7 $file; then # this is an xorg package
+    if grep -q -E 'x7|xcb' $file; then # this is an xorg package
       packname=$pack
 # We extract the version from the ENTITY parts of the .xml file.
       packversion=$(grep "ENTITY ${pack}-version" $file | \

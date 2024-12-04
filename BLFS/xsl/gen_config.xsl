@@ -312,7 +312,8 @@ if&#9;MENU_</xsl:text>
       <!-- for compound packages, default to selecting all the subpackages-->
         <xsl:when test="contains(../name,'xorg') or
                         contains(../name,'plasma') or
-                        contains(../name,'kf5')">
+                        contains(../name,'kf5') or
+                        contains(../name,'xcb-utilities')">
           <xsl:text>y
 
 </xsl:text>

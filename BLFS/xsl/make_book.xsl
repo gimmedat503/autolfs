@@ -127,7 +127,8 @@
               <xsl:apply-templates
                 select="//sect1[(contains(@id,'xorg7') or
                                  contains(@id,'frameworks') or
-                                 contains(@id,'plasma5'))
+                                 contains(@id,'plasma5') or
+                                 contains(@id,'xcb-utilities'))
                                  and .//userinput/literal[contains(string(),
                                             concat($list,'-'))]]"
                  mode="compound">
