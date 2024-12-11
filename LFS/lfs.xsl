@@ -588,7 +588,7 @@ unset OLD_PKGDIR
                                    '--from lfs')"/>
           </xsl:when>
           <xsl:otherwise>
-            <xsl:copy-of select="substring-after(string(), '--from lfs')"/>
+            <xsl:copy-of select="string()"/>
           </xsl:otherwise>
         </xsl:choose>
         <xsl:text>&#xA;</xsl:text>
