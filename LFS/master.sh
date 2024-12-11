@@ -374,12 +374,12 @@ mk_SETUP:
 mk_LUSER: mk_SETUP
 	@\$(call echo_SULUSER_request)
 	@\$(SU_LUSER) "make -C \$(MOUNT_PT)/\$(SCRIPT_ROOT) BREAKPOINT=\$(BREAKPOINT) LUSER"
-	@sudo make restore-luser
 	@touch \$@
 
 mk_SUDO: mk_LUSER
 	@sudo rm -f envars
 	@sudo make BREAKPOINT=\$(BREAKPOINT) SUDO
+	@sudo make restore-luser
 	@touch \$@
 
 mk_CHROOT: mk_SUDO devices
