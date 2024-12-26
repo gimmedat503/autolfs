@@ -341,6 +341,7 @@ fi
 	sudo mv os-release \$(MOUNT_PT)/etc && \\
 	sudo chown root:root \$(MOUNT_PT)/etc/os-release
 	@\$(call echo_finished,$VERSION)
+	@sudo make restore-luser
 
 ck_UID:
 	@if [ \`id -u\` = "0" ]; then \\
@@ -374,7 +375,6 @@ mk_LUSER: mk_SETUP
 mk_SUDO: mk_LUSER
 	@sudo rm -f envars
 	@sudo make BREAKPOINT=\$(BREAKPOINT) SUDO
-	@sudo make restore-luser
 	@touch \$@
 
 mk_CHROOT: mk_SUDO devices
