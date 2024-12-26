@@ -492,15 +492,20 @@ create-sbu_du-report:  mk_BOOT
 
 save-luser:
 	@\$(call echo_message, Building)
-	@LUSER_ID=\$\$(grep '^\$(LUSER):' /etc/passwd | cut -d: -f3); \\
-	if [ -n "\$\$LUSER_ID" ]; then  \\
-	    if [ ! -d \$(LUSER_HOME).XXX ]; then \\
-		mv \$(LUSER_HOME){,.XXX}; \\
-		mkdir \$(LUSER_HOME); \\
-		chown \$(LUSER):\$(LGROUP) \$(LUSER_HOME); \\
+	@if grep -q '^\$(LUSER):' /etc/passwd; then \\
+	    if grep -q '^\$(LUSER)xxx:' /etc/passwd; then \\
+	        userdel -r \$(LUSER)xxx; \\
+	        groupdel \$(LGROUP)xxx; \\
 	    fi; \\
-	    echo "\$\$LUSER_ID" > luser-id; \\
-	    echo User \$(LUSER) exists with ID \$\$LUSER_ID; \\
+	    rm -rf \$(LUSER_HOME)xxx; \\
+	    usermod -d \$(LUSER_HOME)xxx -m \$(LUSER); \\
+	    usermod -l \$(LUSER)xxx \$(LUSER); \\
+	    groupmod -n \$(LGROUP)xxx \$(LGROUP); \\
+	    touch luser-id; \\
+	    echo User \$(LUSER) exists:; \\
+	    echo it has been renamed to \$(LUSER)xxx and its home; \\
+	    echo has been moved to \$(LUSER_HOME)xxx.; \\
+	    echo It will be recreated with book instructions.; \\
 	else \\
 	    rm -f luser-id; \\
 	    echo User \$(LUSER) does not exist; \\
@@ -509,15 +514,20 @@ save-luser:
 	@\$(call housekeeping)
 
 restore-luser:
-	@\$(call echo_message, Building)
 	@if [ -f luser-id ]; then \\
-		rm -rf \$(LUSER_HOME); \\
-		mv \$(LUSER_HOME){.XXX,}; \\
-		rm luser-id; \\
+	        rm luser-id; \\
+	        echo \$(RED) " W A R N I N G " \$(BOLD); \\
+	        echo A new "\$(LUSER)" user has been created during the build.; \\
+	        echo The original "\$(LUSER)" user has been renamed to; \\
+	        echo \$(LUSER)xxx, and its home moved to \$(LUSER_HOME)xxx.; \\
+	        echo Be sure to rename it back if you want to preserve the; \\
+	        echo original content. Otherwise it will be destroyed next; \\
+	        echo time jhalfs is run.; \\
 	else \\
-		userdel \$(LUSER); \\
-		groupdel \$(LGROUP); \\
-		rm -rf \$(LUSER_HOME); \\
+	        echo \$(RED) " W A R N I N G " \$(BOLD); \\
+	        echo A new "\$(LUSER)" user has been created during the build.; \\
+	        echo Since the book does not delete it, jhalfs does not; \\
+	        echo either.; \\
 	fi
 	@\$(call housekeeping)
 
