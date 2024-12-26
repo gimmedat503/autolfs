@@ -146,12 +146,7 @@ chapter_targets() {       #
 # /var/lib may already exist and be owned by root if blfs tools
 # have been installed.
 cat << EOF
-	@if [ -f luser-id ]; then \\
-	  function useradd() { true; }; \\
-	  function groupadd() { true; }; \\
-	  export -f useradd groupadd; \\
-	fi; \\
-	export LFS=\$(MOUNT_PT) && \\
+	@export LFS=\$(MOUNT_PT) && \\
 	\$(CMDSDIR)/`dirname $file`/\$@ >> \$(LOGDIR)/\$@ 2>&1; \\
 	\$(PRT_DU) >>logs/\$@
 	@chown \$(LUSER):\$(LGROUP) envars
