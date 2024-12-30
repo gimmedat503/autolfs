@@ -8,6 +8,10 @@
 
 <!-- Parameters -->
 
+  <!-- User name of the temporary user (lfs in book) -->
+  <xsl:param name="luser" select="'lfs'"/>
+  <!-- Group name of the temporary user (lfs in book) -->
+  <xsl:param name="lgroup" select="'lfs'"/>
   <!-- use package management ?
        n = no, original behavior
        y = yes, add PKG_DEST to scripts in install commands of chapter08-10
@@ -573,6 +577,15 @@ unset OLD_PKGDIR
         </xsl:choose>
         <xsl:text>&#xA;</xsl:text>
       </xsl:when><!-- temp chapters install -->
+      <!-- If userinput is a child of userinput, we have luser or lgroup -->
+      <xsl:when test="parent::userinput">
+        <xsl:if test="@remap='user'">
+          <xsl:copy-of select="$luser"/>
+        </xsl:if>
+        <xsl:if test="@remap='group'">
+          <xsl:copy-of select="$lgroup"/>
+        </xsl:if>
+      </xsl:when>
       <!-- The rest of commands -->
       <xsl:otherwise>
         <xsl:apply-templates/>
