@@ -365,12 +365,22 @@ depends on !BOOK_BLFS
     #--- LFS User Account
 
     config    LUSER
-        string
+        string "Temporary user for chapters 4, 5, and 6 (should not exist)"
         default    "lfs"
+        help
+           LFS creates a temporary user for running commands in chapters
+           4, 5, and 6. In the book, its username is "lfs", but in jhalfs
+           you can choose it. It should *not* exist on the system, and it
+           is removed before entering chroot.
 
     config    LGROUP
-        string
+        string "Group of user for chapters 4, 5, and 6 (should not exist)"
         default    LUSER
+        help
+           This is the main group of the temporary user created in chapter
+           4. In the book, the groupname is "lfs", but in jhalfs
+           you can choose it. It should *not* exist on the system, and it
+           is removed before entering chroot.
 
     config    LHOME
         string

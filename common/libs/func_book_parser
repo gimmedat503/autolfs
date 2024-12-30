@@ -83,6 +83,8 @@ extract_commands() {         #
 
   # Use the profiled book for generating the scriptlets
   xsltproc --nonet                                      \
+           --stringparam luser          "$LUSER"        \
+           --stringparam lgroup         "$LGROUP"       \
            --stringparam testsuite      "$TEST"         \
            --stringparam ncurses5       "$NCURSES5"     \
            --stringparam strip          "$STRIP"        \
