@@ -136,6 +136,15 @@
 
    MENU "General Settings"
 
+      Temporary user for chapters 4, 5, and 6 (should not exist):
+         the name of the user running the commands in those chapters. In the
+      book, it is named lfs, and this is the default. You can change it
+      to any non existing user.
+
+      Group of user for chapters 4, 5, and 6 (should not exist):
+         this is lfs in the book, but you can rename it to any non existing
+      group name.
+
       Build Directory: the name of the root of the LFS system
          This is the equivalent of the LFS variable in the book. Set it
       to "/mnt/lfs" if you have followed the book for creating the LFS
