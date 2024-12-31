@@ -341,7 +341,6 @@ fi
 	sudo mv os-release \$(MOUNT_PT)/etc && \\
 	sudo chown root:root \$(MOUNT_PT)/etc/os-release
 	@\$(call echo_finished,$VERSION)
-	@sudo make restore-luser
 
 ck_UID:
 	@if [ \`id -u\` = "0" ]; then \\
@@ -363,7 +362,7 @@ ck_terminal:
 
 mk_SETUP:
 	@\$(call echo_SU_request)
-	@sudo make save-luser
+	@sudo make check-luser
 	@sudo make BREAKPOINT=\$(BREAKPOINT) SETUP
 	@touch \$@
 
@@ -378,6 +377,7 @@ mk_SUDO: mk_LUSER
 	@touch \$@
 
 mk_CHROOT: mk_SUDO devices
+	@sudo make remove-luser
 	@\$(call echo_CHROOT_request)
 	@( sudo \$(CHROOT1) -c "cd \$(SCRIPT_ROOT) && make BREAKPOINT=\$(BREAKPOINT) CHROOT")
 	@touch \$@
@@ -485,46 +485,16 @@ create-sbu_du-report:  mk_BOOT
 	fi
 	@touch  \$@
 
-save-luser:
-	@\$(call echo_message, Building)
+check-luser:
 	@if grep -q '^\$(LUSER):' /etc/passwd; then \\
-	    if grep -q '^\$(LUSER)xxx:' /etc/passwd; then \\
-	        userdel -r \$(LUSER)xxx; \\
-	        groupdel \$(LGROUP)xxx; \\
-	    fi; \\
-	    rm -rf \$(LUSER_HOME)xxx; \\
-	    usermod -d \$(LUSER_HOME)xxx -m \$(LUSER); \\
-	    usermod -l \$(LUSER)xxx \$(LUSER); \\
-	    groupmod -n \$(LGROUP)xxx \$(LGROUP); \\
-	    touch luser-id; \\
-	    echo User \$(LUSER) exists:; \\
-	    echo it has been renamed to \$(LUSER)xxx and its home; \\
-	    echo has been moved to \$(LUSER_HOME)xxx.; \\
-	    echo It will be recreated with book instructions.; \\
-	else \\
-	    rm -f luser-id; \\
-	    echo User \$(LUSER) does not exist; \\
-	    echo It will be created with book instructions.; \\
+	    echo \$(RED)User \$(LUSER) exists:; \\
+	    echo This is an error since the LFS book shall create it; \\
+	    exit 1; \\
 	fi
-	@\$(call housekeeping)
 
-restore-luser:
-	@if [ -f luser-id ]; then \\
-	        rm luser-id; \\
-	        echo \$(RED) " W A R N I N G " \$(BOLD); \\
-	        echo A new "\$(LUSER)" user has been created during the build.; \\
-	        echo The original "\$(LUSER)" user has been renamed to; \\
-	        echo \$(LUSER)xxx, and its home moved to \$(LUSER_HOME)xxx.; \\
-	        echo Be sure to rename it back if you want to preserve the; \\
-	        echo original content. Otherwise it will be destroyed next; \\
-	        echo time jhalfs is run.; \\
-	else \\
-	        echo \$(RED) " W A R N I N G " \$(BOLD); \\
-	        echo A new "\$(LUSER)" user has been created during the build.; \\
-	        echo Since the book does not delete it, jhalfs does not; \\
-	        echo either.; \\
-	fi
-	@\$(call housekeeping)
+remove-luser:
+	-@userdel \$(LUSER); groupdel \$(LGROUP)
+	@rm -rf \$(LUSER_HOME)
 
 do_housekeeping:
 	@-rm -f /tools
