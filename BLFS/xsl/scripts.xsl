@@ -662,6 +662,8 @@ EOF
         <xsl:if test="not(preceding-sibling::screen[1][@role='root'])">
           <xsl:call-template name="begin-root"/>
         </xsl:if>
+        <xsl:text>
+</xsl:text>
         <xsl:apply-templates mode="root"/>
         <xsl:if test="not(following-sibling::screen[1][@role='root'])">
           <xsl:call-template name="end-root"/>
@@ -669,6 +671,8 @@ EOF
       </xsl:when>
 <!-- then all the instructions run as user -->
       <xsl:otherwise>
+        <xsl:text>
+</xsl:text>
         <xsl:apply-templates select="userinput"/>
       </xsl:otherwise>
     </xsl:choose>
@@ -844,13 +848,13 @@ echo Time before install: ${SECONDS} >> $INFOLOG
         </xsl:if>
   </xsl:template>
 
-  <xsl:template match="userinput|command">
+  <xsl:template match="command">
     <xsl:text>
 </xsl:text>
     <xsl:apply-templates/>
   </xsl:template>
 
-  <xsl:template match="userinput" mode="root">
+  <xsl:template match="screen" mode="root">
     <xsl:text>
 </xsl:text>
     <xsl:apply-templates mode="root"/>
@@ -924,9 +928,13 @@ echo Size after install: $(sudo du -skx --exclude home $BUILD_DIR) >> $INFOLOG
 </xsl:text>
   </xsl:template>
 
-  <xsl:template match="userinput" mode="destdir">
+  <xsl:template match="screen" mode="destdir">
     <xsl:text>
 </xsl:text>
+    <xsl:apply-templates mode="destdir"/>
+  </xsl:template>
+
+  <xsl:template match="userinput" mode="destdir">
     <xsl:for-each select="./literal">
       <xsl:call-template name="outputpkgdest">
         <xsl:with-param name="outputstring" select="preceding-sibling::text()[1]"/>

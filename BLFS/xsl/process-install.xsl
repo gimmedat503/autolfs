@@ -192,7 +192,7 @@
               <xsl:text>
 echo Time before install: ${SECONDS} >> $INFOLOG</xsl:text>
               <xsl:apply-templates
-                         select="$instruction-tree[@role='root']/userinput"
+                         select="$instruction-tree[@role='root']"
                          mode="destdir"/>
               <xsl:text>
 
@@ -345,9 +345,13 @@ echo Size after install: $(sudo du -skx --exclude home $BUILD_DIR) >> $INFOLOG
     </xsl:choose>
   </xsl:template>
 
-  <xsl:template match="userinput" mode="install">
+  <xsl:template match="screen" mode="install">
     <xsl:text>
 </xsl:text>
+    <xsl:apply-templates mode="install"/>
+  </xsl:template>
+
+  <xsl:template match="userinput" mode="install">
     <xsl:call-template name="output-install">
       <xsl:with-param name="out-string" select="string()"/>
     </xsl:call-template>
