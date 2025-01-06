@@ -302,7 +302,7 @@ EOF
 
 .NOTPARALLEL:
 
-all:	ck_UID ck_terminal mk_SETUP mk_LUSER mk_SUDO mk_CHROOT mk_BOOT create-sbu_du-report mk_BLFS_TOOL mk_CUSTOM_TOOLS
+all:	ck_UID ck_terminal ck_mountpoint mk_SETUP mk_LUSER mk_SUDO mk_CHROOT mk_BOOT create-sbu_du-report mk_BLFS_TOOL mk_CUSTOM_TOOLS
 	@sudo env LFS=\$(MOUNT_PT) kernfs-scripts/teardown.sh
 EOF
 ) >> $MKFILE
@@ -487,7 +487,7 @@ create-sbu_du-report:  mk_BOOT
 
 check-luser:
 	@if grep -q '^\$(LUSER):' /etc/passwd; then \\
-	    echo \$(RED)User \$(LUSER) exists:; \\
+	    echo \$(RED)User \$(LUSER) exists:\$(OFF); \\
 	    echo This is an error since the LFS book shall create it; \\
 	    exit 1; \\
 	fi
@@ -496,9 +496,19 @@ remove-luser:
 	-@userdel \$(LUSER); groupdel \$(LGROUP)
 	@rm -rf \$(LUSER_HOME)
 
+ck_mountpoint:
+	@if ! mountpoint -q \$(MOUNT_PT); then \\
+	   echo \$(RED)"**" \$(MOUNT_PT) is not a mountpoint. "**"\$(OFF); \\
+	   echo If this is what you want, just wait. Otherwise, hit; \\
+	   echo the \\<return\\> key within 5 seconds and fix your; \\
+	   echo configuration.; \\
+	   if read -t 5; then exit 1; fi; \\
+	fi
+
 do_housekeeping:
 	@-rm -f /tools
 
+.PHONY: ck_mountpoint
 EOF
 ) >> $MKFILE
 
