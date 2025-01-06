@@ -1037,6 +1037,13 @@ LOGLEVEL="</xsl:text>
               <xsl:with-param name="outputstring" select="substring-after($outputstring,' /')"/>
             </xsl:call-template>
           </xsl:when>
+	  <xsl:when test="contains($outputstring,' {/')">
+            <xsl:value-of select="substring-before($outputstring,' {/')"/>
+            <xsl:text> $PKG_DEST{/</xsl:text>
+            <xsl:call-template name="outputpkgdest">
+              <xsl:with-param name="outputstring" select="substring-after($outputstring,' {/')"/>
+            </xsl:call-template>
+          </xsl:when>
           <xsl:otherwise>
             <xsl:value-of select="$outputstring"/>
           </xsl:otherwise>
