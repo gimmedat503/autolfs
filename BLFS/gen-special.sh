@@ -37,7 +37,7 @@ EXCEPTIONS=$(grep 'ENTITY.*version[ ]*"[^0-9"&.].*[0-9]' ${BLFS_DIR}/packages.en
 
 # Non-versioned packages:
 NV_LIST="postlfs-config-profile postlfs-config-random postlfs-config-vimrc \
-initramfs xorg-env kde-pre-install-config kf5-intro \
+initramfs xorg-env kde-pre-install-config kf6-intro \
 lxqt-pre-install lxqt-post-install ojdk-conf tex-path"
 
 cat >$SPECIAL_FILE << EOF
@@ -59,12 +59,12 @@ EOF
 
 # Non-versionned packages. Add to NV_LIST if you need more.
 for nv_id in $NV_LIST; do
-# Actually, kf5-intro contains some version info, so should be
+# Actually, kf6-intro contains some version info, so should be
 # versioned. For other packages, we define version to 1.0.0
 # because the DTD needs a version tag.
   DUM_VER=1.0.0
-  if [ $nv_id = kf5-intro ]; then
-    DUM_VER=$(grep kf5-version $BLFS_DIR/packages.ent | \
+  if [ $nv_id = kf6-intro ]; then
+    DUM_VER=$(grep kf6-version $BLFS_DIR/packages.ent | \
               sed 's/[^"]*"\([^"]*\).*/\1/')
   fi
   cat >>$SPECIAL_FILE << EOF
@@ -96,9 +96,10 @@ EOF
 done
 
 # Taking packages contained in pages installing several packages (x7* except
-# x7driver, kf5-frameworks, and plasma5-all), as versionned modules.
-# We also write a dependency expansion when a dep is of the form
-# xorg7-something or kf5-frameworks or plasma5-build. Since that is another
+# x7driver, xcb-utilities, kf6-frameworks, and plasma-all), as versionned
+# modules. We also write a dependency expansion when a dep is of the form
+# xorg7-something or xcb-utils or kf6-frameworks or plasma-build.
+# Since that is another
 # template, we need a temporary file, which we shall concatenate at the end
 cat >tmpfile << EOF
   <xsl:template name="expand-deps">
@@ -108,8 +109,8 @@ cat >tmpfile << EOF
     <xsl:choose>
 EOF
 for file in $(ls ${BLFS_DIR}/x/installing/x7* | grep -v x7driver) \
-	    ${BLFS_DIR}/kde/kf5/kf5-frameworks.xml                \
-            ${BLFS_DIR}/kde/plasma5/plasma-all.xml                \
+	    ${BLFS_DIR}/kde/kf6/kf6-frameworks.xml                \
+            ${BLFS_DIR}/kde/plasma/plasma-all.xml                \
             ${BLFS_DIR}/x/installing/xcb-utilities.xml; do
   id=$(grep xreflabel $file | sed 's@.*id="\([^"]*\).*@\1@')
   cat >>$SPECIAL_FILE << EOF

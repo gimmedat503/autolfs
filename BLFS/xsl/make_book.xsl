@@ -60,7 +60,7 @@
      sect2 (python/perl modules/dependencies )
      The templates after this one treat each of those cases.
      However, some items are sub-packages of compound packages (xorg7-*,
-     kf5, plasma), and not id.
+     xcb-utils, kf6, plasma), and not id.
      We need special instructions in that case.
      The difficulty is that some of those names *are* id's,
      because they are referenced in the index.
@@ -118,7 +118,7 @@
             </xsl:when>
             <xsl:when test="$list='plasma-post-install'">
               <xsl:apply-templates
-                select="//sect1[@id='plasma5-build']"
+                select="//sect1[@id='plasma-build']"
                 mode="plasma-post-install"/>
             </xsl:when>
             <xsl:when test="not(id($list)[self::sect1 or self::sect2])">
@@ -127,7 +127,7 @@
               <xsl:apply-templates
                 select="//sect1[(contains(@id,'xorg7') or
                                  contains(@id,'frameworks') or
-                                 contains(@id,'plasma5') or
+                                 contains(@id,'plasma-build') or
                                  contains(@id,'xcb-utilities'))
                                  and .//userinput/literal[contains(string(),
                                             concat($list,'-'))]]"
@@ -507,7 +507,8 @@
     </sect2>
   </xsl:template>
 
-<!-- we have got an xorg package. We are at the installation page
+<!-- we have gotten an xorg package (or xcb-utils or plasma or fk6).
+     We are at the installation page
      but now we need to make an autonomous page from the global
      one -->
   <xsl:template match="sect1" mode="compound">
@@ -519,8 +520,8 @@
                         select="string(.//userinput[starts-with(string(),'cat ')])"/>
       </xsl:call-template>
     </xsl:variable>
-    <!-- Unfortunately, there are packages in kf5 and plasma5 that
-         starts in the same way: for example kwallet in kf5
+    <!-- Unfortunately, there are packages in kf6 and plasma that
+         starts in the same way: for example kwallet in kf6
          and kwallet-pam in plasma. So we may arrive here with
          package=kwallet and tarball=kwallet-pam-(version).tar.xz.
          We should not continue in this case. For checking, transform
@@ -576,10 +577,10 @@
                   <!-- $download-dir contains the trailing / for xorg,
                        but not for KDE... -->
                   <xsl:if test="contains(@id,'frameworks') or
-                                contains(@id,'plasma5')">
+                                contains(@id,'plasma')">
                     <xsl:text>/</xsl:text>
                   </xsl:if>
-                  <!-- Some kf5 packages are in a subdirectory -->
+                  <!-- Some kf packages are in a subdirectory
                   <xsl:if test="$package='khtml' or
                                 $package='kdelibs4support' or
                                 $package='kdesignerplugin' or
@@ -590,7 +591,7 @@
                                 $package='kross' or
                                 $package='kxmlrpcclient'">
                     <xsl:text>portingAids/</xsl:text>
-                  </xsl:if>
+                  </xsl:if>-->
                   <xsl:value-of select="$tarball"/>
                 </xsl:attribute>
                </xsl:element>
@@ -626,7 +627,7 @@
           <!-- packagedir is used in xorg lib instructions -->
           <screen><userinput>packagedir=<xsl:value-of
                       select="substring-before($tarball,'.tar.')"/>
-           <!-- name is used in kf5 instructions -->
+           <!-- name is used in kf6 instructions -->
             <xsl:text>
 name=$(echo $packagedir | sed 's/-[[:digit:]].*//')
 </xsl:text>
@@ -727,12 +728,12 @@ name=$(echo $packagedir | sed 's/-[[:digit:]].*//')
 
   <xsl:template name="inst-instr">
     <!-- This template is necessary because of the "libpciaccess" case in Xorg
-         libraries and the "kapidox" case in kf5:
+         libraries and the "kapidox" case in kf6:
          Normally, the general instructions extract the package and change
          to the extracted dir for running the installation instructions.
          When installing a sub-package of a compound package, the installation
          instructions to be run are located between a pushd and a popd,
-         *except* for Xorg libraries and kf5, where a popd occurs inside a
+         *except* for Xorg libraries and kf6, where a popd occurs inside a
          case for libpciaccess and kapidox...
          So we call this template with a "inst-instr" string that contains
          everything after the pushd.-->
@@ -787,9 +788,10 @@ name=$(echo $packagedir | sed 's/-[[:digit:]].*//')
 
         <para>
           Install <application><xsl:value-of select="$package"/></application>
-          by running the following commands:
+          by running the following commands as the
+          <systemitem class="username">root</systemitem> user:
         </para>
-        <screen role="root">
+<!--    <screen role="root">
           <userinput>
             <xsl:call-template name="plasma-sessions">
               <xsl:with-param
@@ -797,12 +799,12 @@ name=$(echo $packagedir | sed 's/-[[:digit:]].*//')
                 select="string(.//userinput[contains(text(),'xsessions')])"/>
             </xsl:call-template>
           </userinput>
-        </screen>
+        </screen>-->
         <xsl:copy-of select=".//screen[@role='root']"/>
       </sect2>
     </xsl:element><!-- sect1 -->
   </xsl:template>
-
+  <!--
   <xsl:template name="plasma-sessions">
     <xsl:param name="p-sessions-text"/>
     <xsl:choose>
@@ -823,6 +825,6 @@ name=$(echo $packagedir | sed 's/-[[:digit:]].*//')
         <xsl:copy-of select="$p-sessions-text"/>
       </xsl:otherwise>
     </xsl:choose>
-  </xsl:template>
+  </xsl:template>-->
 
 </xsl:stylesheet>

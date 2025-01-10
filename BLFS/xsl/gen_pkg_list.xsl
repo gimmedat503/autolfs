@@ -360,8 +360,8 @@
         <xsl:when test="@role='nodep'"/>
 <!-- Call list expansion when we have a compound package -->
         <xsl:when test="contains(@linkend,'xorg7-') or
-                        @linkend='kf5-frameworks' or
-                        @linkend='plasma5-build' or
+                        @linkend='kf6-frameworks' or
+                        @linkend='plasma-build' or
                         @linkend='xcb-utilities'">
           <xsl:call-template name="expand-deps">
             <xsl:with-param name="section">
