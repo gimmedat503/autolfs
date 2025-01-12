@@ -96,6 +96,10 @@
       <xsl:when test="contains(string(),'&lt;N&gt;') or string()='N'">
         <xsl:text>4</xsl:text>
       </xsl:when>
+      <!-- we have now also -j$(nproc) in some replaceable elements-->
+      <xsl:when test="contains(string(),'nproc')">
+        <xsl:apply-templates/>
+      </xsl:when>
 <!-- Mercurial config file uses user_name. Replace only if non root.
      Add a bogus mail field. That works for the proposed tests anyway. -->
       <xsl:when test="contains(string(),'user_name') and $sudo='y'">
