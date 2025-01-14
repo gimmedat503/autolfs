@@ -520,16 +520,12 @@
                         select="string(.//userinput[starts-with(string(),'cat ')])"/>
       </xsl:call-template>
     </xsl:variable>
-    <!-- Unfortunately, there are packages in kf6 and plasma that
-         starts in the same way: for example kwallet in kf6
-         and kwallet-pam in plasma. So we may arrive here with
-         package=kwallet and tarball=kwallet-pam-(version).tar.xz.
-         We should not continue in this case. For checking, transform
-         digits into X, and check that package-X occurs in tarball. We
-         have to translate package too, since it may contain digits.-->
-    <xsl:if test=
-        "contains(translate($tarball,'0123456789','XXXXXXXXXX'),
-                  concat(translate($package,'0123456789','XXXXXXXXXX'),'-X'))">
+    <!-- If there is no match for $package-<digit> in cat-md5, the
+         tarball variable is empty. This may happen if there is a package
+         "pkg" in one sect1 and "pkg-something" in another sect1, and the
+         current element is the second sect1 while we want to match just
+         "pkg". So only run the sequel if $tarball is not empty.-->
+    <xsl:if test="$tarball!=''">
       <xsl:variable name="md5sum">
         <xsl:call-template name="md5sum">
           <xsl:with-param name="package" select="concat(' ',$package,'-')"/>
