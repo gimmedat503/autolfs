@@ -653,31 +653,46 @@ name=$(echo $packagedir | sed 's/-[[:digit:]].*//')
 <!-- get the tarball name from the text that comes from the .md5 file -->
   <xsl:template name="tarball">
     <!-- $package must start with a space, and finish with a "-", to be
-         sure to match exactly the package. Note that if we have two
-         packages named e.g. "pkg1" and "pkg1-add", the second one may be
-         matched by " pkg1-". So this only works if "pkg1" comes before
-         "pkg1-add" in the md5 file. Presently this is the case in the book...
+         sure to match exactly the package.
     -->
     <xsl:param name="package"/>
     <xsl:param name="cat-md5"/>
+    <xsl:variable name="tarball"
+                  select="substring-before(
+                             substring-after(
+                                $cat-md5,
+                                substring-before(
+                                   $cat-md5,
+                                   $package
+                                )
+                             ),
+                             '&#xA;'
+                          )"/>
     <xsl:choose>
-      <xsl:when test="contains(substring-before($cat-md5,$package),'&#xA;')">
+      <!-- tarball may be empty when we have found no match. For example
+           when the current element is plasma and package is kwallet.
+           This can happen because the test for kwallet- matches
+           kwallet-pam in plasma, while kwallet is in kf6.
+           The test below fails so that we call again the tarball
+           template, with a cat-md5 variable which does not contain
+           kwallet. We just do nothing in this case. -->
+      <xsl:when test="$tarball=''"/>
+      <!-- This is the test for matching $package-<digit>. We
+           change all digits to X in tarball (which also contains a space
+           before), and in $package (because it may also contain
+           digits). We then compare both strings.-->
+      <xsl:when test="contains(translate($tarball,'0123456789',
+                                                  'XXXXXXXXXX'),
+                        concat(translate($package,'0123456789',
+                                                  'XXXXXXXXXX'),'X'))">
+        <xsl:copy-of select="substring-after($tarball,' ')"/>
+      </xsl:when>
+      <xsl:otherwise><!-- this is not the right tarball -->
         <xsl:call-template name="tarball">
           <xsl:with-param name="package" select="$package"/>
           <xsl:with-param name="cat-md5"
-                          select="substring-after($cat-md5,'&#xA;')"/>
+                          select="substring-after($cat-md5,$tarball)"/>
         </xsl:call-template>
-      </xsl:when>
-      <xsl:when test="contains(substring-before($cat-md5,$package),' ')">
-        <xsl:call-template name="tarball">
-          <xsl:with-param name="package" select="$package"/>
-          <xsl:with-param name="cat-md5"
-                          select="substring-after($cat-md5,' ')"/>
-        </xsl:call-template>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:copy-of select="substring-after(
-                                substring-before($cat-md5,'&#xA;'),' ')"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
