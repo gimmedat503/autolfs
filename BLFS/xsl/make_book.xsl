@@ -528,14 +528,16 @@
     <xsl:if test="$tarball!=''">
       <xsl:variable name="md5sum">
         <xsl:call-template name="md5sum">
-          <xsl:with-param name="package" select="concat(' ',$package,'-')"/>
+          <!-- We concat a space to tarball to be sure to match exactly -->
+          <xsl:with-param name="tarball" select="concat(' ',$tarball)"/>
           <xsl:with-param name="cat-md5"
                           select=".//userinput[starts-with(string(),'cat ')]"/>
         </xsl:call-template>
       </xsl:variable>
       <xsl:variable name="download-dir">
         <xsl:call-template name="download-dir">
-          <xsl:with-param name="package" select="concat(' ',$package,'-')"/>
+          <!-- We concat a space to tarball to be sure to match exactly -->
+          <xsl:with-param name="tarball" select="concat(' ',$tarball)"/>
           <xsl:with-param name="cat-md5"
                           select=".//userinput[starts-with(string(),'cat ')]"/>
         </xsl:call-template>
@@ -694,26 +696,32 @@ name=$(echo $packagedir | sed 's/-[[:digit:]].*//')
   </xsl:template>
 <!-- get the download dirname from the text that comes from the .md5 file -->
   <xsl:template name="download-dir">
-    <xsl:param name="package"/>
+  <!-- tarball must be preceded by a space -->
+    <xsl:param name="tarball"/>
     <xsl:param name="cat-md5"/>
     <xsl:choose>
       <xsl:when test="not(@id='xorg7-legacy')">
         <xsl:copy-of select="''"/>
       </xsl:when>
-      <xsl:when test="contains(substring-before($cat-md5,$package),'&#xA;')">
+      <!-- Remove a line in cat-md5 and call again, unless we are at
+           the right line. -->
+      <xsl:when test="contains(substring-before($cat-md5,$tarball),'&#xA;')">
         <xsl:call-template name="download-dir">
-          <xsl:with-param name="package" select="$package"/>
+          <xsl:with-param name="tarball" select="$tarball"/>
           <xsl:with-param name="cat-md5"
                           select="substring-after($cat-md5,'&#xA;')"/>
         </xsl:call-template>
       </xsl:when>
-      <xsl:when test="contains(substring-before($cat-md5,$package),' ')">
+      <xsl:when test="contains(substring-before($cat-md5,$tarball),' ')">
+      <!-- This is the space after the md5. Call again with following
+           string. -->
         <xsl:call-template name="download-dir">
-          <xsl:with-param name="package" select="$package"/>
+          <xsl:with-param name="tarball" select="$tarball"/>
           <xsl:with-param name="cat-md5"
                           select="substring-after($cat-md5,' ')"/>
         </xsl:call-template>
       </xsl:when>
+      <!-- Now the only space is after the dir name. -->
       <xsl:otherwise>
         <xsl:copy-of select="substring-before($cat-md5,' ')"/>
       </xsl:otherwise>
@@ -721,18 +729,21 @@ name=$(echo $packagedir | sed 's/-[[:digit:]].*//')
   </xsl:template>
 <!-- same for md5sum -->
   <xsl:template name="md5sum">
-    <xsl:param name="package"/>
+    <xsl:param name="tarball"/>
     <xsl:param name="cat-md5"/>
     <xsl:choose>
-      <xsl:when test="contains(substring-before($cat-md5,$package),'&#xA;')">
+      <!-- Remove a line in cat-md5 and call again, unless we are at
+           the right line. -->
+      <xsl:when test="contains(substring-before($cat-md5,$tarball),'&#xA;')">
         <xsl:call-template name="md5sum">
-          <xsl:with-param name="package" select="$package"/>
+          <xsl:with-param name="tarball" select="$tarball"/>
           <xsl:with-param name="cat-md5"
                           select="substring-after($cat-md5,'&#xA;')"/>
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:copy-of select="substring-before($cat-md5,'  ')"/>
+      <!-- Now the first space is after the md5. -->
+        <xsl:copy-of select="substring-before($cat-md5,' ')"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
