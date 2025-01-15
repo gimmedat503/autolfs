@@ -123,7 +123,16 @@
             </xsl:when>
             <xsl:when test="not(id($list)[self::sect1 or self::sect2])">
               <!-- This is a sub-package: parse the corresponding compound
-                   package-->
+                   package. Note that the test for the content of literal
+                   may return several compound packages. For example kf6
+                   contains kwallet-<version> and plasma contains
+                   kwallet-pam-<version>. Also breeze in plasma may also
+                   match breeze-icons in kf. We could test that $list is
+                   followed by -<digit> to make sure we have the right
+                   package, but since we'll have to do that test anyway
+                   later because there are also cases where packages start
+                   the same in one cat command, we'll have to do the test
+                   later nayway. -->
               <xsl:apply-templates
                 select="//sect1[(contains(@id,'xorg7') or
                                  contains(@id,'frameworks') or
@@ -534,6 +543,7 @@
                           select=".//userinput[starts-with(string(),'cat ')]"/>
         </xsl:call-template>
       </xsl:variable>
+      <!-- Only needed for Xorg legacy. Returns an empty string for others. -->
       <xsl:variable name="download-dir">
         <xsl:call-template name="download-dir">
           <!-- We concat a space to tarball to be sure to match exactly -->
@@ -542,6 +552,12 @@
                           select=".//userinput[starts-with(string(),'cat ')]"/>
         </xsl:call-template>
       </xsl:variable>
+      <!-- We extract install instructions from the userinput containing
+           a loop. There is always one pushd and one popd command.
+           Problem is there may be more than one popd (case of kapidox
+           in kf6 and libpciaccess in Xorg libraries). So we call
+           a special template for providing instructions that work in
+           all cases. -->
       <xsl:variable name="install-instructions">
         <xsl:call-template name="inst-instr">
           <xsl:with-param name="inst-instr"
@@ -554,6 +570,7 @@
           <xsl:with-param name="package" select="$package"/>
         </xsl:call-template>
       </xsl:variable>
+      <!-- Make a minimal sect1 with the data collected above. -->
       <xsl:element name="sect1">
         <xsl:attribute name="id">
           <xsl:value-of select="$package"/>
@@ -578,7 +595,8 @@
                                 contains(@id,'plasma')">
                     <xsl:text>/</xsl:text>
                   </xsl:if>
-                  <!-- Some kf packages are in a subdirectory
+                  <!-- Some kf packages are in a subdirectory (not anymore,
+                       but kept just in case...
                   <xsl:if test="$package='khtml' or
                                 $package='kdelibs4support' or
                                 $package='kdesignerplugin' or
@@ -622,7 +640,8 @@
             Install <application><xsl:value-of select="$package"/></application>
             by running the following commands:
           </para>
-          <!-- packagedir is used in xorg lib instructions -->
+          <!-- packagedir is used in xorg lib instructions
+               Note that now plasma uses srcdir, but not in instructions. -->
           <screen><userinput>packagedir=<xsl:value-of
                       select="substring-before($tarball,'.tar.')"/>
            <!-- name is used in kf6 instructions -->
@@ -700,6 +719,7 @@ name=$(echo $packagedir | sed 's/-[[:digit:]].*//')
     <xsl:param name="tarball"/>
     <xsl:param name="cat-md5"/>
     <xsl:choose>
+      <!-- Return an empty string if not Xorg-legacy -->
       <xsl:when test="not(@id='xorg7-legacy')">
         <xsl:copy-of select="''"/>
       </xsl:when>
