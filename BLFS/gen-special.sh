@@ -123,6 +123,7 @@ EOF
   cat >> tmpfile << EOF
       <xsl:when test="\$section='$id'">
 EOF
+
 # We extract the list of packages for those pages from
 # the "cat" command that creates the md5 file. We assume
 # that the preceding package is a dependency of the following,
@@ -139,6 +140,10 @@ EOF
 
   precpack=NONE
   for pack in $list_cat; do
+# plasma-activities-* are in kf-apps, so remove them from plasma.
+# the test is for any compound actually, but prevents another test
+# anyway.
+    if [ "${pack#plasma-activities}" != "$pack" ]; then continue; fi
     if grep -q -E 'x7|xcb' $file; then # this is an xorg package
       packname=$pack
 # We extract the version from the ENTITY parts of the .xml file.
