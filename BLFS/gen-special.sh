@@ -183,6 +183,9 @@ EOF
                                mode="dependency"/>
 EOF
 # we have to add plasma-activities* to plasma dependencies
+# Also we add a runtime dep on plasma-post-install, in case a user
+# changes the defaults in the "plasma" package (untick plasma-post-install
+# which is ticked by default).
       if [ $(basename $file .xml) = plasma-all ]; then
         cat >>$SPECIAL_FILE << EOF
           <xsl:element name="dependency">
@@ -195,6 +198,12 @@ EOF
             <xsl:attribute name="status">required</xsl:attribute>
             <xsl:attribute name="build">before</xsl:attribute>
             <xsl:attribute name="name">plasma-activities-stats</xsl:attribute>
+            <xsl:attribute name="type">ref</xsl:attribute>
+          </xsl:element>
+          <xsl:element name="dependency">
+            <xsl:attribute name="status">required</xsl:attribute>
+            <xsl:attribute name="build">after</xsl:attribute>
+            <xsl:attribute name="name">plasma-post-install</xsl:attribute>
             <xsl:attribute name="type">ref</xsl:attribute>
           </xsl:element>
 EOF
