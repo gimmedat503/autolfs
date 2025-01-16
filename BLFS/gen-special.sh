@@ -182,6 +182,23 @@ EOF
                                                @role='optional']"
                                mode="dependency"/>
 EOF
+# we have to add plasma-activities* to plasma dependencies
+      if [ $(basename $file .xml) = plasma-all ]; then
+        cat >>$SPECIAL_FILE << EOF
+          <xsl:element name="dependency">
+            <xsl:attribute name="status">required</xsl:attribute>
+            <xsl:attribute name="build">before</xsl:attribute>
+            <xsl:attribute name="name">plasma-activities</xsl:attribute>
+            <xsl:attribute name="type">ref</xsl:attribute>
+          </xsl:element>
+          <xsl:element name="dependency">
+            <xsl:attribute name="status">required</xsl:attribute>
+            <xsl:attribute name="build">before</xsl:attribute>
+            <xsl:attribute name="name">plasma-activities-stats</xsl:attribute>
+            <xsl:attribute name="type">ref</xsl:attribute>
+          </xsl:element>
+EOF
+      fi
     fi
     cat >>$SPECIAL_FILE << EOF
 <!-- End dependencies -->
