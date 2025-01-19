@@ -667,11 +667,11 @@ name=$(echo $packagedir | sed 's/-[[:digit:]].*//')
 
   </xsl:template>
 
-<!-- get the tarball name from the text that comes from the .md5 file -->
-  <xsl:template name="tarball">
-    <!-- $package must start with a space, and finish with a "-", to be
-         sure to match exactly the package.
-    -->
+<!-- get the line matching $package<digit> in the text for
+     the .md( (.dat) file. $package should begin with a space ' '
+     and end with a dash '-'. We must exclude lines starting with
+     a hash '#' too. -->
+  <xsl:template name="match-tarball">
     <xsl:param name="package"/>
     <xsl:param name="cat-md5"/>
     <xsl:variable name="tarball"
@@ -682,6 +682,19 @@ name=$(echo $packagedir | sed 's/-[[:digit:]].*//')
                                    $cat-md5,
                                    $package
                                 )
+                             ),
+                             '&#xA;'
+                          )"/>
+<!-- To get the line, we need to break at a linefeed, but just before
+     the found tarball. So we backup 64 chars to be sure to be in the
+     preceding line (64 chars is twice the length of a md5 hash). -->
+    <xsl:variable name="cut"
+    select="string-length(substring-before($cat-md5,$tarball)) - 64"/>
+    <xsl:variable name="line"
+                  select="substring-before(
+                             substring-after(
+                                substring($cat-md5,$cut),
+                                '&#xA;'
                              ),
                              '&#xA;'
                           )"/>
@@ -701,11 +714,12 @@ name=$(echo $packagedir | sed 's/-[[:digit:]].*//')
       <xsl:when test="contains(translate($tarball,'0123456789',
                                                   'XXXXXXXXXX'),
                         concat(translate($package,'0123456789',
-                                                  'XXXXXXXXXX'),'X'))">
-        <xsl:copy-of select="substring-after($tarball,' ')"/>
+                                                  'XXXXXXXXXX'),'X')) and
+                      not(starts-with($line,'#'))">
+        <xsl:copy-of select="$line"/>
       </xsl:when>
       <xsl:otherwise><!-- this is not the right tarball -->
-        <xsl:call-template name="tarball">
+        <xsl:call-template name="match-tarball">
           <xsl:with-param name="package" select="$package"/>
           <xsl:with-param name="cat-md5"
                           select="substring-after($cat-md5,$tarball)"/>
