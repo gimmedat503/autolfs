@@ -522,36 +522,29 @@
      one -->
   <xsl:template match="sect1" mode="compound">
     <xsl:param name="package"/>
-    <xsl:variable name="tarball">
-      <xsl:call-template name="tarball">
+<!-- First get the line in the .md5 (.dat) file which contains
+     ' '$package'-'<digit> and does not start with a hash (#)
+     Note that this may be empty because of the selection of the
+     sect1 -->
+    <xsl:variable name="line">
+      <xsl:call-template name="match-tarball">
         <xsl:with-param name="package" select="concat(' ',$package,'-')"/>
         <xsl:with-param name="cat-md5"
                         select="string(.//userinput[starts-with(string(),'cat ')])"/>
       </xsl:call-template>
     </xsl:variable>
-    <!-- If there is no match for $package-<digit> in cat-md5, the
-         tarball variable is empty. This may happen if there is a package
-         "pkg" in one sect1 and "pkg-something" in another sect1, and the
-         current element is the second sect1 while we want to match just
-         "pkg". So only run the sequel if $tarball is not empty.-->
-    <xsl:if test="$tarball!=''">
-      <xsl:variable name="md5sum">
-        <xsl:call-template name="md5sum">
-          <!-- We concat a space to tarball to be sure to match exactly -->
-          <xsl:with-param name="tarball" select="concat(' ',$tarball)"/>
-          <xsl:with-param name="cat-md5"
-                          select=".//userinput[starts-with(string(),'cat ')]"/>
-        </xsl:call-template>
-      </xsl:variable>
-      <!-- Only needed for Xorg legacy. Returns an empty string for others. -->
-      <xsl:variable name="download-dir">
-        <xsl:call-template name="download-dir">
-          <!-- We concat a space to tarball to be sure to match exactly -->
-          <xsl:with-param name="tarball" select="concat(' ',$tarball)"/>
-          <xsl:with-param name="cat-md5"
-                          select=".//userinput[starts-with(string(),'cat ')]"/>
-        </xsl:call-template>
-      </xsl:variable>
+<!-- If there is no match for ' '$package-<digit> in cat-md5, the
+     line variable is empty. This may happen if there is a package
+     "pkg" in one sect1 and "pkg-something" in another sect1, and the
+     current element is the second sect1 while we want to match just
+     "pkg". So only run the sequel if $line is not empty.-->
+    <xsl:if test="$line!=''">
+<!-- line is of the form "md5<space>download-dir<space>tarball"
+     where download-dir is empty for anything other than xorg-legacy.
+     So the same functions work in all cases.-->
+      <xsl:variable name="md5sum" select="substring-before($line,' ')"/>
+      <xsl:variable name="download-dir" select="substring-before(substring-after($line,' '),' ')"/>
+      <xsl:variable name="tarball" select="substring-after(substring-after($line,' '),' ')"/>
       <!-- We extract install instructions from the userinput containing
            a loop. There is always one pushd and one popd command.
            Problem is there may be more than one popd (case of kapidox
