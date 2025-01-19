@@ -720,60 +720,6 @@ name=$(echo $packagedir | sed 's/-[[:digit:]].*//')
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
-<!-- get the download dirname from the text that comes from the .md5 file -->
-  <xsl:template name="download-dir">
-  <!-- tarball must be preceded by a space -->
-    <xsl:param name="tarball"/>
-    <xsl:param name="cat-md5"/>
-    <xsl:choose>
-      <!-- Return an empty string if not Xorg-legacy -->
-      <xsl:when test="not(@id='xorg7-legacy')">
-        <xsl:copy-of select="''"/>
-      </xsl:when>
-      <!-- Remove a line in cat-md5 and call again, unless we are at
-           the right line. -->
-      <xsl:when test="contains(substring-before($cat-md5,$tarball),'&#xA;')">
-        <xsl:call-template name="download-dir">
-          <xsl:with-param name="tarball" select="$tarball"/>
-          <xsl:with-param name="cat-md5"
-                          select="substring-after($cat-md5,'&#xA;')"/>
-        </xsl:call-template>
-      </xsl:when>
-      <xsl:when test="contains(substring-before($cat-md5,$tarball),' ')">
-      <!-- This is the space after the md5. Call again with following
-           string. -->
-        <xsl:call-template name="download-dir">
-          <xsl:with-param name="tarball" select="$tarball"/>
-          <xsl:with-param name="cat-md5"
-                          select="substring-after($cat-md5,' ')"/>
-        </xsl:call-template>
-      </xsl:when>
-      <!-- Now the only space is after the dir name. -->
-      <xsl:otherwise>
-        <xsl:copy-of select="substring-before($cat-md5,' ')"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
-<!-- same for md5sum -->
-  <xsl:template name="md5sum">
-    <xsl:param name="tarball"/>
-    <xsl:param name="cat-md5"/>
-    <xsl:choose>
-      <!-- Remove a line in cat-md5 and call again, unless we are at
-           the right line. -->
-      <xsl:when test="contains(substring-before($cat-md5,$tarball),'&#xA;')">
-        <xsl:call-template name="md5sum">
-          <xsl:with-param name="tarball" select="$tarball"/>
-          <xsl:with-param name="cat-md5"
-                          select="substring-after($cat-md5,'&#xA;')"/>
-        </xsl:call-template>
-      </xsl:when>
-      <xsl:otherwise>
-      <!-- Now the first space is after the md5. -->
-        <xsl:copy-of select="substring-before($cat-md5,' ')"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
 
   <xsl:template name="inst-instr">
     <!-- This template is necessary because of the "libpciaccess" case in Xorg
