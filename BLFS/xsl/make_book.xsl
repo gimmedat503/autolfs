@@ -60,7 +60,7 @@
      sect2 (python/perl modules/dependencies )
      The templates after this one treat each of those cases.
      However, some items are sub-packages of compound packages (xorg7-*,
-     kf5, plasma), and not id.
+     xcb-utils, kf6, plasma), and not id.
      We need special instructions in that case.
      The difficulty is that some of those names *are* id's,
      because they are referenced in the index.
@@ -118,16 +118,25 @@
             </xsl:when>
             <xsl:when test="$list='plasma-post-install'">
               <xsl:apply-templates
-                select="//sect1[@id='plasma5-build']"
+                select="//sect1[@id='plasma-build']"
                 mode="plasma-post-install"/>
             </xsl:when>
             <xsl:when test="not(id($list)[self::sect1 or self::sect2])">
               <!-- This is a sub-package: parse the corresponding compound
-                   package-->
+                   package. Note that the test for the content of literal
+                   may return several compound packages. For example kf6
+                   contains kwallet-<version> and plasma contains
+                   kwallet-pam-<version>. Also breeze in plasma may also
+                   match breeze-icons in kf. We could test that $list is
+                   followed by -<digit> to make sure we have the right
+                   package, but since we'll have to do that test anyway
+                   later because there are also cases where packages start
+                   the same in one cat command, we'll have to do the test
+                   later nayway. -->
               <xsl:apply-templates
                 select="//sect1[(contains(@id,'xorg7') or
                                  contains(@id,'frameworks') or
-                                 contains(@id,'plasma5') or
+                                 contains(@id,'plasma-build') or
                                  contains(@id,'xcb-utilities'))
                                  and .//userinput/literal[contains(string(),
                                             concat($list,'-'))]]"
@@ -507,42 +516,41 @@
     </sect2>
   </xsl:template>
 
-<!-- we have got an xorg package. We are at the installation page
+<!-- we have gotten an xorg package (or xcb-utils or plasma or fk6).
+     We are at the installation page
      but now we need to make an autonomous page from the global
      one -->
   <xsl:template match="sect1" mode="compound">
     <xsl:param name="package"/>
-    <xsl:variable name="tarball">
-      <xsl:call-template name="tarball">
+<!-- First get the line in the .md5 (.dat) file which contains
+     ' '$package'-'<digit> and does not start with a hash (#)
+     Note that this may be empty because of the selection of the
+     sect1 -->
+    <xsl:variable name="line">
+      <xsl:call-template name="match-tarball">
         <xsl:with-param name="package" select="concat(' ',$package,'-')"/>
         <xsl:with-param name="cat-md5"
                         select="string(.//userinput[starts-with(string(),'cat ')])"/>
       </xsl:call-template>
     </xsl:variable>
-    <!-- Unfortunately, there are packages in kf5 and plasma5 that
-         starts in the same way: for example kwallet in kf5
-         and kwallet-pam in plasma. So we may arrive here with
-         package=kwallet and tarball=kwallet-pam-(version).tar.xz.
-         We should not continue in this case. For checking, transform
-         digits into X, and check that package-X occurs in tarball. We
-         have to translate package too, since it may contain digits.-->
-    <xsl:if test=
-        "contains(translate($tarball,'0123456789','XXXXXXXXXX'),
-                  concat(translate($package,'0123456789','XXXXXXXXXX'),'-X'))">
-      <xsl:variable name="md5sum">
-        <xsl:call-template name="md5sum">
-          <xsl:with-param name="package" select="concat(' ',$package,'-')"/>
-          <xsl:with-param name="cat-md5"
-                          select=".//userinput[starts-with(string(),'cat ')]"/>
-        </xsl:call-template>
-      </xsl:variable>
-      <xsl:variable name="download-dir">
-        <xsl:call-template name="download-dir">
-          <xsl:with-param name="package" select="concat(' ',$package,'-')"/>
-          <xsl:with-param name="cat-md5"
-                          select=".//userinput[starts-with(string(),'cat ')]"/>
-        </xsl:call-template>
-      </xsl:variable>
+<!-- If there is no match for ' '$package-<digit> in cat-md5, the
+     line variable is empty. This may happen if there is a package
+     "pkg" in one sect1 and "pkg-something" in another sect1, and the
+     current element is the second sect1 while we want to match just
+     "pkg". So only run the sequel if $line is not empty.-->
+    <xsl:if test="$line!=''">
+<!-- line is of the form "md5<space>download-dir<space>tarball"
+     where download-dir is empty for anything other than xorg-legacy.
+     So the same functions work in all cases.-->
+      <xsl:variable name="md5sum" select="substring-before($line,' ')"/>
+      <xsl:variable name="download-dir" select="substring-before(substring-after($line,' '),' ')"/>
+      <xsl:variable name="tarball" select="substring-after(substring-after($line,' '),' ')"/>
+      <!-- We extract install instructions from the userinput containing
+           a loop. There is always one pushd and one popd command.
+           Problem is there may be more than one popd (case of kapidox
+           in kf6 and libpciaccess in Xorg libraries). So we call
+           a special template for providing instructions that work in
+           all cases. -->
       <xsl:variable name="install-instructions">
         <xsl:call-template name="inst-instr">
           <xsl:with-param name="inst-instr"
@@ -555,6 +563,7 @@
           <xsl:with-param name="package" select="$package"/>
         </xsl:call-template>
       </xsl:variable>
+      <!-- Make a minimal sect1 with the data collected above. -->
       <xsl:element name="sect1">
         <xsl:attribute name="id">
           <xsl:value-of select="$package"/>
@@ -576,10 +585,11 @@
                   <!-- $download-dir contains the trailing / for xorg,
                        but not for KDE... -->
                   <xsl:if test="contains(@id,'frameworks') or
-                                contains(@id,'plasma5')">
+                                contains(@id,'plasma')">
                     <xsl:text>/</xsl:text>
                   </xsl:if>
-                  <!-- Some kf5 packages are in a subdirectory -->
+                  <!-- Some kf packages are in a subdirectory (not anymore,
+                       but kept just in case...
                   <xsl:if test="$package='khtml' or
                                 $package='kdelibs4support' or
                                 $package='kdesignerplugin' or
@@ -590,7 +600,7 @@
                                 $package='kross' or
                                 $package='kxmlrpcclient'">
                     <xsl:text>portingAids/</xsl:text>
-                  </xsl:if>
+                  </xsl:if>-->
                   <xsl:value-of select="$tarball"/>
                 </xsl:attribute>
                </xsl:element>
@@ -623,10 +633,11 @@
             Install <application><xsl:value-of select="$package"/></application>
             by running the following commands:
           </para>
-          <!-- packagedir is used in xorg lib instructions -->
+          <!-- packagedir is used in xorg lib instructions
+               Note that now plasma uses srcdir, but not in instructions. -->
           <screen><userinput>packagedir=<xsl:value-of
                       select="substring-before($tarball,'.tar.')"/>
-           <!-- name is used in kf5 instructions -->
+           <!-- name is used in kf6 instructions -->
             <xsl:text>
 name=$(echo $packagedir | sed 's/-[[:digit:]].*//')
 </xsl:text>
@@ -649,90 +660,75 @@ name=$(echo $packagedir | sed 's/-[[:digit:]].*//')
 
   </xsl:template>
 
-<!-- get the tarball name from the text that comes from the .md5 file -->
-  <xsl:template name="tarball">
-    <!-- $package must start with a space, and finish with a "-", to be
-         sure to match exactly the package. Note that if we have two
-         packages named e.g. "pkg1" and "pkg1-add", the second one may be
-         matched by " pkg1-". So this only works if "pkg1" comes before
-         "pkg1-add" in the md5 file. Presently this is the case in the book...
-    -->
+<!-- get the line matching $package<digit> in the text for
+     the .md( (.dat) file. $package should begin with a space ' '
+     and end with a dash '-'. We must exclude lines starting with
+     a hash '#' too. -->
+  <xsl:template name="match-tarball">
     <xsl:param name="package"/>
     <xsl:param name="cat-md5"/>
+    <xsl:variable name="tarball"
+                  select="substring-before(
+                             substring-after(
+                                $cat-md5,
+                                substring-before(
+                                   $cat-md5,
+                                   $package
+                                )
+                             ),
+                             '&#xA;'
+                          )"/>
+<!-- To get the line, we need to break at a linefeed, but just before
+     the found tarball. So we backup 64 chars to be sure to be in the
+     preceding line (64 chars is twice the length of a md5 hash). -->
+    <xsl:variable name="cut"
+    select="string-length(substring-before($cat-md5,$tarball)) - 64"/>
+    <xsl:variable name="line"
+                  select="substring-before(
+                             substring-after(
+                                substring($cat-md5,$cut),
+                                '&#xA;'
+                             ),
+                             '&#xA;'
+                          )"/>
     <xsl:choose>
-      <xsl:when test="contains(substring-before($cat-md5,$package),'&#xA;')">
-        <xsl:call-template name="tarball">
+      <!-- tarball may be empty when we have found no match. For example
+           when the current element is plasma and package is kwallet.
+           This can happen because the test for kwallet- matches
+           kwallet-pam in plasma, while kwallet is in kf6.
+           The test below fails so that we call again the tarball
+           template, with a cat-md5 variable which does not contain
+           kwallet. We just do nothing in this case. -->
+      <xsl:when test="$tarball=''"/>
+      <!-- This is the test for matching $package-<digit>. We
+           change all digits to X in tarball (which also contains a space
+           before), and in $package (because it may also contain
+           digits). We then compare both strings.-->
+      <xsl:when test="contains(translate($tarball,'0123456789',
+                                                  'XXXXXXXXXX'),
+                        concat(translate($package,'0123456789',
+                                                  'XXXXXXXXXX'),'X')) and
+                      not(starts-with($line,'#'))">
+        <xsl:copy-of select="$line"/>
+      </xsl:when>
+      <xsl:otherwise><!-- this is not the right tarball -->
+        <xsl:call-template name="match-tarball">
           <xsl:with-param name="package" select="$package"/>
           <xsl:with-param name="cat-md5"
-                          select="substring-after($cat-md5,'&#xA;')"/>
+                          select="substring-after($cat-md5,$tarball)"/>
         </xsl:call-template>
-      </xsl:when>
-      <xsl:when test="contains(substring-before($cat-md5,$package),' ')">
-        <xsl:call-template name="tarball">
-          <xsl:with-param name="package" select="$package"/>
-          <xsl:with-param name="cat-md5"
-                          select="substring-after($cat-md5,' ')"/>
-        </xsl:call-template>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:copy-of select="substring-after(
-                                substring-before($cat-md5,'&#xA;'),' ')"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
-<!-- get the download dirname from the text that comes from the .md5 file -->
-  <xsl:template name="download-dir">
-    <xsl:param name="package"/>
-    <xsl:param name="cat-md5"/>
-    <xsl:choose>
-      <xsl:when test="not(@id='xorg7-legacy')">
-        <xsl:copy-of select="''"/>
-      </xsl:when>
-      <xsl:when test="contains(substring-before($cat-md5,$package),'&#xA;')">
-        <xsl:call-template name="download-dir">
-          <xsl:with-param name="package" select="$package"/>
-          <xsl:with-param name="cat-md5"
-                          select="substring-after($cat-md5,'&#xA;')"/>
-        </xsl:call-template>
-      </xsl:when>
-      <xsl:when test="contains(substring-before($cat-md5,$package),' ')">
-        <xsl:call-template name="download-dir">
-          <xsl:with-param name="package" select="$package"/>
-          <xsl:with-param name="cat-md5"
-                          select="substring-after($cat-md5,' ')"/>
-        </xsl:call-template>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:copy-of select="substring-before($cat-md5,' ')"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
-<!-- same for md5sum -->
-  <xsl:template name="md5sum">
-    <xsl:param name="package"/>
-    <xsl:param name="cat-md5"/>
-    <xsl:choose>
-      <xsl:when test="contains(substring-before($cat-md5,$package),'&#xA;')">
-        <xsl:call-template name="md5sum">
-          <xsl:with-param name="package" select="$package"/>
-          <xsl:with-param name="cat-md5"
-                          select="substring-after($cat-md5,'&#xA;')"/>
-        </xsl:call-template>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:copy-of select="substring-before($cat-md5,'  ')"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
 
   <xsl:template name="inst-instr">
     <!-- This template is necessary because of the "libpciaccess" case in Xorg
-         libraries and the "kapidox" case in kf5:
+         libraries and the "kapidox" case in kf6:
          Normally, the general instructions extract the package and change
          to the extracted dir for running the installation instructions.
          When installing a sub-package of a compound package, the installation
          instructions to be run are located between a pushd and a popd,
-         *except* for Xorg libraries and kf5, where a popd occurs inside a
+         *except* for Xorg libraries and kf6, where a popd occurs inside a
          case for libpciaccess and kapidox...
          So we call this template with a "inst-instr" string that contains
          everything after the pushd.-->
@@ -787,9 +783,10 @@ name=$(echo $packagedir | sed 's/-[[:digit:]].*//')
 
         <para>
           Install <application><xsl:value-of select="$package"/></application>
-          by running the following commands:
+          by running the following commands as the
+          <systemitem class="username">root</systemitem> user:
         </para>
-        <screen role="root">
+<!--    <screen role="root">
           <userinput>
             <xsl:call-template name="plasma-sessions">
               <xsl:with-param
@@ -797,12 +794,12 @@ name=$(echo $packagedir | sed 's/-[[:digit:]].*//')
                 select="string(.//userinput[contains(text(),'xsessions')])"/>
             </xsl:call-template>
           </userinput>
-        </screen>
+        </screen>-->
         <xsl:copy-of select=".//screen[@role='root']"/>
       </sect2>
     </xsl:element><!-- sect1 -->
   </xsl:template>
-
+  <!--
   <xsl:template name="plasma-sessions">
     <xsl:param name="p-sessions-text"/>
     <xsl:choose>
@@ -823,6 +820,6 @@ name=$(echo $packagedir | sed 's/-[[:digit:]].*//')
         <xsl:copy-of select="$p-sessions-text"/>
       </xsl:otherwise>
     </xsl:choose>
-  </xsl:template>
+  </xsl:template>-->
 
 </xsl:stylesheet>
