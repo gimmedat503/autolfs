@@ -338,8 +338,8 @@ if [[ "$REBUILD_MAKEFILE" = "n" ]] ; then
     cp "$PKGMNGTDIR/packInstall.sh" "$JHALFSDIR/"
     }
 
-# Copy urls.xsl, if needed
-  [[ "$GETPKG" = "y" ]] && cp "$COMMON_DIR/urls.xsl" "$JHALFSDIR/"
+# Copy urls.xsl and pkgver.xsl, if needed
+  [[ "$GETPKG" = "y" ]] && cp "$COMMON_DIR"/{urls.xsl,pkgver.xsl} "$JHALFSDIR/"
 
 # Always create the test-log directory to allow user to "uncomment" test
 # instructions
