@@ -190,16 +190,19 @@ inline_doc
   fi
 
   # Check for wget presence (using a dummy version)
-  WGET_LOC="$(whereis -b wget | cut -d" " -f2)"
-  if [ -x $WGET_LOC ]; then
-    wgetVer="$(wget --version | head -n1 | cut -d" " -f3)"
-    if echo "$wgetVer" | grep -q '^[[:digit:]]'; then
-      check_version "1.0.0"  "${wgetVer}"      "WGET"
-    else echo Wget detected, but no version found. Continuing anyway.
+  # Do this only if we need to download packages
+  if [ "$GETPKG" = y ]; then
+    WGET_LOC="$(whereis -b wget | cut -d" " -f2)"
+    if [ -x $WGET_LOC ]; then
+      wgetVer="$(wget --version | head -n1 | cut -d" " -f3)"
+      if echo "$wgetVer" | grep -q '^[[:digit:]]'; then
+        check_version "1.0.0"  "${wgetVer}"      "WGET"
+      else echo Wget detected, but no version found. Continuing anyway.
+      fi
+    else
+      echo "${nl_}\"${RED}wget${OFF}\" ${BOLD}must be installed on your system for jhalfs to run"
+      exit 1
     fi
-  else
-    echo "${nl_}\"${RED}wget${OFF}\" ${BOLD}must be installed on your system for jhalfs to run"
-    exit 1
   fi
 
   # Before checking libxml2 and libxslt version information, ensure tools
