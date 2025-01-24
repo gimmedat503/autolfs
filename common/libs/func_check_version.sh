@@ -189,17 +189,40 @@ inline_doc
     exit 1
   fi
 
-  # Check for wget presence (using a dummy version)
-  WGET_LOC="$(whereis -b wget | cut -d" " -f2)"
-  if [ -x $WGET_LOC ]; then
-    wgetVer="$(wget --version | head -n1 | cut -d" " -f3)"
+  # Check for wget  or curl presence (using dummy versions)
+  # Do this only if we need to download packages
+  # Return the result in a global variable
+  if [ "$GETPKG" = y ]; then
+  declare -g DOWNLOADER
+  # First try wget
+    WGET_LOC="$(whereis -b wget | cut -d" " -f2)"
+    if [ -x $WGET_LOC ]; then
+      wgetVer="$(wget --version | head -n1 | cut -d" " -f3)"
+    fi
     if echo "$wgetVer" | grep -q '^[[:digit:]]'; then
       check_version "1.0.0"  "${wgetVer}"      "WGET"
-    else echo Wget detected, but no version found. Continuing anyway.
+      DOWNLOADER=wget
+    else
+    # Stop here if requesting blfs tools.
+      if [ "$BLFS_TOOL" = y ]; then
+        echo "${nl_}\"${RED}wget${OFF}\" ${BOLD}must be"
+        echo "installed on your system for using blfs tools"
+        exit 1
+      fi
+    # Then try curl
+      CURL_LOC="$(whereis -b curl | cut -d" " -f2)"
+      if [ -x $CURL_LOC ]; then
+        curlVer="$(curl --version | head -n1 | cut -d" " -f2)"
+      fi
+      if echo "$curlVer" | grep -q '^[[:digit:]]'; then
+        check_version "1.0.0"  "${curlVer}"      "CURL"
+        DOWNLOADER=curl
+      else
+        echo "${nl_}Either \"${RED}wget${OFF}\" or \"${RED}curl${OFF}\" ${BOLD}must be"
+        echo "installed on your system for retrieving source files"
+        exit 1
+      fi
     fi
-  else
-    echo "${nl_}\"${RED}wget${OFF}\" ${BOLD}must be installed on your system for jhalfs to run"
-    exit 1
   fi
 
   # Before checking libxml2 and libxslt version information, ensure tools
