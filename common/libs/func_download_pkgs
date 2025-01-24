@@ -8,6 +8,7 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
   [ "$GETPKG" = y ] || return 0
 
   local URL FILE BOOKMD5 MD5 HAVEMD5 fromARCHIVE WGETPARAM MAYBEMORE
+  local PKGVER PKGDIR
 
   WGETPARAM=""
   if [[ "${RETRYSRCDOWNLOAD}" = "y" ]] ; then
@@ -114,7 +115,20 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
         echo "Storing file:<$FILE> in the package archive"
         cp -f "$FILE" "${SRC_ARCHIVE}"
    fi
-
+    # Check for version mismatch between what is known to the book and
+    # the extracted source directory
+    PKGVER=$(xsltproc --stringparam package "$URL" $JHALFSDIR/pkgver.xsl $JHALFSDIR/prbook.xml)
+    if [ -n "$PKGVER" ]; then
+      PKGDIR=$(tar -tf "$FILE" | head -n1 | sed 's@^./@@;s@/.*@@')
+      # DEBUG
+      # echo "PKGVER: $PKGVER"
+      # echo "PKGDIR: $PKGDIR"
+      # echo "{PKGSIR%PKGVER}: ${PKGDIR%$PKGVER}"
+      # end DEBUG
+      if [ "${PKGDIR%$PKGVER}" = "${PKGDIR}" ]; then
+        error_message Package version $PKGVER does not match extracted directory name $PKGDIR
+      fi
+    fi
   done
 
   if [[ -s MISSING_FILES.DMP ]]; then
