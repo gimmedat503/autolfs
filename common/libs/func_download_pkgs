@@ -9,12 +9,22 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
 
   local URL FILE BOOKMD5 MD5 HAVEMD5 fromARCHIVE WGETPARAM MAYBEMORE
 
-  WGETPARAM=""
-  if [[ "${RETRYSRCDOWNLOAD}" = "y" ]] ; then
-    WGETPARAM+="--retry-connrefused"
+  DOWNLDPARAM=""
+  if [ "$DOWNLOADER" = "wget" ] ; then
+    if [[ "${RETRYSRCDOWNLOAD}" = "y" ]] ; then
+      DOWNLDPARAM+="--retry-connrefused"
+    fi
+    DOWNLDPARAM+=" --tries ${RETRYDOWNLOADCNT}"
+    DOWNLDPARAM+=" --timeout ${DOWNLOADTIMEOUT}"
   fi
-  WGETPARAM+=" --tries ${RETRYDOWNLOADCNT}"
-  WGETPARAM+=" --timeout ${DOWNLOADTIMEOUT}"
+  if [ "$DOWNLOADER" = "curl" ] ; then
+    if [[ "${RETRYSRCDOWNLOAD}" = "y" ]] ; then
+      DOWNLDPARAM+="--retry-connrefused"
+    fi
+    DOWNLDPARAM+=" -LO"
+    DOWNLDPARAM+=" --retry ${RETRYDOWNLOADCNT}"
+    DOWNLDPARAM+=" --max-time ${DOWNLOADTIMEOUT}"
+  fi
 
   gs_wrt_message(){
     echo "${RED}$1${OFF}"
@@ -59,7 +69,7 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
 	else
 	  echo "${BOLD}${YELLOW}$FILE: not found in ${BUILDDIR}/sources${OFF}"
 	fi
-        if ! wget "$URL" $WGETPARAM; then
+        if ! $DOWNLOADER "$URL" $DOWNLDPARAM; then
           gs_wrt_message "$FILE not found on any server..SKIPPING"
           continue
         fi
