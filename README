@@ -1,7 +1,7 @@
 1. INTRODUCTION::
 
       The scripts in this directory implement an automation of the building
-   of a GNU/LInux system, as described in the Linux From Scratch book series.
+   of a GNU/Linux system, as described in the Linux From Scratch book series.
    The name of the project is jhalfs: in that name, "alfs" stands for
    "automated linux from scratch", and the initials "jh" have been kept since
    the original "jhalfs-0.2" code developed by Jeremy Huntwork.
