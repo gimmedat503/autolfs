@@ -36,6 +36,12 @@
       It is strongly advised that you first build manually a complete system
    before attempting to automate the build.
 
+      In addition to a good knowledge of UNIX (linux), the ability to read,
+   understand and modify shell scripts may be required at some point.
+
+      Since the XML book sources are used by this tool, and those are kept
+   in a git repository, a basic knowledge of git may help.
+
       Of course the "Host System Requirements" should be fulfilled. Some
    supplementary packages are needed for using jhalfs. They are detailed
    at the bottom of the page:
