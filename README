@@ -111,13 +111,29 @@
 
    MENU "BOOK Settings"
 
-      Use BOOK: You have three choices: LFS System V, LFS systemd, BLFS.
+      Choose BOOK: You have two choices: "Linux from scratch" or
+      "Beyond Kinux From Scratch (see help)"
          The BLFS part is described in README.BLFS
 
-      Book version: You have two choices: "Branch" or "Working Copy"
-         Branch will have the tool clone the book's git repository. The
-      choice of the branch (actually any git commit) or of the file
-      location for the working copy is done in the next menu entry.
+      Init system: You have two choices: "LFS SysV" or "LFS systemd" (or
+      same with BLFS if you have chosen it above)
+         Allows to choose between the two flavours of the books.
+
+      XML source of the Book: Two choices: "retrieved from git repository" or
+      "Local Copy"
+         The first choice is more flexible, since it will allow to choose any
+      point in git history. But the second one allows to make local changes
+      to the source.
+
+      Which point in git history? (if you have chosen to retrieve the book
+      sources from the git repository)
+         You can use any way of denote a commit known to the "git" program.
+      Most popular ones are "trunk" (for the development version) or the
+      version string of a stable version (such as "12.1").
+
+      Location of local copy (mandatory) (if you have chosen the local
+      copy)
+         This is the absolute path to the local copy of the book sources.
 
       Multilib: Four choices: Normal LFS, Multilib with i686 libraries,
       multilib with x32 libraries, multilib with all libraries.
