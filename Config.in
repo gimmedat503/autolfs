@@ -10,32 +10,39 @@ menu "BOOK Settings"
 
     #--- BOOK/script
     choice
-        prompt "Use BOOK"
-        default BOOK_LFS
+        prompt "Choose BOOK"
+        default BOOK_LFS_ANY
         help
-            Select the book where build instructions are retrieved.
+            Select whether you want to build LFS or install the BLFS tools
 
-        config    BOOK_LFS
-            bool "Linux From Scratch System V"
+        config    BOOK_LFS_ANY
+            bool "Linux From Scratch"
             help
-                Set up the tools to build LFS with SysV init.
-
-        config    BOOK_LFS_SYSD
-            bool "Linux From Scratch systemd"
-            help
-                Set up the tools to build LFS with systemd init.
+                Set up the tools to build LFS, and optionally run the build
 
         config    BOOK_BLFS
             bool "Beyond Linux From Scratch (see help)"
             help
-                if the LFS system has already been built, install the tools
-                to build BLFS packages.
+                if the LFS system has already been built, and you have not
+                installed the tools to build BLFS packages during that build,
+                install those tools now.
     endchoice
 
     choice
-    depends on BOOK_BLFS
     prompt "Init system"
 
+      if BOOK_LFS_ANY
+        config BOOK_LFS
+        bool "LFS SysV"
+        help
+            Extract the SysV flavour of the LFS book
+
+        config BOOK_LFS_SYSD
+        bool "LFS systemd"
+        help
+            Extract the systemd flavour of the LFS book
+      endif
+      if BOOK_BLFS
         config BLFS_SYSV
         bool "BLFS SysV"
         help
@@ -45,7 +52,7 @@ menu "BOOK Settings"
         bool "BLFS systemd"
         help
             Extract the systemd flavour of the BLFS book
-
+      endif
     endchoice
 
     config    INITSYS
@@ -61,36 +68,39 @@ menu "BOOK Settings"
 
     #--- Book version
     choice
-        prompt   "Book version"
+        prompt   "XML Source of Book"
         default   BRANCH
 
         config    BRANCH
-            bool    "Branch (default to trunk) or any commit"
+            bool   "retrieved from git repository"
             help
-                Use an LFS book downloaded from the git repository, and
+                Use a book XML source downloaded from the git repository, and
                 checked out at any commit (branch/tag/sha)
 
         config    WORKING_COPY
-            bool    "Working Copy"
+            bool    "Local Copy"
             help
-                Use a local working copy of the LFS book
+                Use a local copy of the book XML source (not necessarily
+                a git repository)
     endchoice
 
     config    COMMIT
-        string    "Branch, tag, or any commit"
+        string    "Which point in git history?"
         default    "trunk"
         depends on    BRANCH
         help
-            Enter a branch, a tag, or an abbreviated commit sha.
-            The tool will clone the LFS repository and checkout
-            that commit
+            You can select the development version of the book using "trunk".
+            A stable version may be selected with its version string, for
+            example "12.1".
+            Actually any way to denote a commit in git can be used, such as
+            an abbreviated commit sha or a tag or a branch name.
 
     config    BOOK
-        string    "Loc of working copy (mandatory)"
+        string    "Location of local copy (mandatory)"
         default    "**EDIT ME**"
         depends on    WORKING_COPY
         help
-            The full path to a local copy of the LFS book XML sources
+            The full path to a local copy of the book XML sources
 
     choice
     depends on (BOOK_LFS || BOOK_LFS_SYSD)
