@@ -225,6 +225,16 @@ export JH_KEEP_FILES="</xsl:text>
      <xsl:text>unset MAKELEVEL
 unset MAKE_TERMOUT
 unset MAKE_TERMERR
+</xsl:text>
+<!-- cmake does not reinstall files that are already present and unchanged.
+     this is not a problem in a DESTDIR install (hopefully DESTDIR is
+     empty). But it may be a problem with porg. In this case
+     CMAKE_INSTALL_ALWAYS has to be set in the environment.-->
+    <xsl:if test="$wrap-install='y'">
+      <xsl:text># needed for cmake to overwrite existing files
+export CMAKE_INSTALL_ALWAYS=1
+</xsl:text>
+    </xsl:if>
 <!-- When installing several packages, and profile or profile.d
      has been modified by a previous package, we need to ensure that
      the updated profile is used.
