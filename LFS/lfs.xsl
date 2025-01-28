@@ -84,6 +84,9 @@
   <!-- The scripts root is needed for printing disk usage -->
   <xsl:param name='script-root' select="'jhalfs'"/>
 
+  <!-- whether we should test for version vs directory name mismatch -->
+  <xsl:param name='test-mismatch' select="'n'"/>
+
 <!-- End parameters -->
 
 <!-- bashdir is used at the beginning of chapter 6, for the #! line.
@@ -1262,7 +1265,16 @@ if [ -d "$PKGDIR" ]; then rm -rf $PKGDIR; fi
 if [ -d "$PKG_DEST" ]; then rm -rf $PKG_DEST; fi
 if [ -d "${PKGDIR%-*}-build" ]; then  rm -rf ${PKGDIR%-*}-build; fi
 </xsl:text>
+      <xsl:if test="$test-mismatch='y'">
+        <xsl:text>
+if [ "${PKGDIR%$VERSION}" = "$PKGDIR" ]; then
+    echo Mismatch between version and directory name ! Exiting...
+    exit 2
+fi
+</xsl:text>
+      </xsl:if>
     </xsl:if>
+
     <xsl:text>
 echo "KB: $(du -skx --exclude=lost+found --exclude=var/lib --exclude=$SCRIPT_ROOT $ROOT)"
 </xsl:text>
