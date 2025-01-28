@@ -238,7 +238,9 @@ export CMAKE_INSTALL_ALWAYS=1
 <!-- When installing several packages, and profile or profile.d
      has been modified by a previous package, we need to ensure that
      the updated profile is used.
--->if [ -r /etc/profile ]; then source /etc/profile; fi
+    -->
+    <xsl:text># Always use the most recent profile
+if [ -r /etc/profile ]; then source /etc/profile; fi
 # End of environment</xsl:text>
 
       <xsl:choose>
