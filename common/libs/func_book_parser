@@ -113,6 +113,7 @@ extract_commands() {         #
            --stringparam script-root    "$SCRIPT_ROOT"  \
            --stringparam jobs           "$JOBS"         \
            --stringparam jobs-bp1       "$JOBSBP1"      \
+           --stringparam test-mismatch  "$TEST_MISMATCH"\
            --output "./${COMMANDS}/"                    \
            $XSL                                         \
            prbook.xml >> $LOGDIR/$LOG 2>&1
