@@ -92,13 +92,20 @@
         <xsl:copy-of select="$xkblayout"/>
       </xsl:when>
 <!-- At several places, the number of jobs is given as "N" in a replaceable
-     tag. We either detect "N" alone or &lt;N&gt; Replace N with 4. -->
-      <xsl:when test="contains(string(),'&lt;N&gt;') or string()='N'">
-        <xsl:text>4</xsl:text>
-      </xsl:when>
-      <!-- we have now also -j$(nproc) in some replaceable elements-->
-      <xsl:when test="contains(string(),'nproc')">
-        <xsl:apply-templates/>
+     tag. We either detect "N" alone or &lt;N&gt; Also, we have now a few
+     instances of $(nproc) in a replaceable tag. Replace with with the
+     number of jobs chosen by the user. -->
+      <xsl:when test="contains(string(),'&lt;N&gt;') or
+                      string()='N' or
+                      contains(string(),'nproc')">
+        <xsl:choose>
+          <xsl:when test="$jobs=0">
+            <xsl:text>$(nproc)</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="$jobs"/>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:when>
 <!-- Mercurial config file uses user_name. Replace only if non root.
      Add a bogus mail field. That works for the proposed tests anyway. -->
