@@ -1012,7 +1012,32 @@ DESTDIR=$PKG_DEST ninja</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
-      <xsl:otherwise> <!-- no make nor ninja in this string -->
+      <xsl:when test="contains($outputstring,'pip3 install')">
+        <xsl:choose>
+          <xsl:when test="not(starts-with($outputstring,'pip3 install'))">
+            <xsl:call-template name="outputpkgdest">
+              <xsl:with-param name="outputstring"
+                              select="substring-before($outputstring,'pip3 install')"/>
+            </xsl:call-template>
+            <xsl:call-template name="outputpkgdest">
+              <xsl:with-param
+                 name="outputstring"
+                 select="substring-after($outputstring,
+                                      substring-before($outputstring,'pip3 install'))"/>
+            </xsl:call-template>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>
+pip3 install -I --root $PKG_DEST</xsl:text>
+              <xsl:call-template name="outputpkgdest">
+                <xsl:with-param
+                    name="outputstring"
+                    select="substring-after($outputstring,'pip3 install')"/>
+              </xsl:call-template>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
+      <xsl:otherwise> <!-- no make nor ninja nor pip3 in this string -->
         <xsl:choose>
           <xsl:when test="contains($outputstring,'&gt;/') and
                                  not(contains(substring-before($outputstring,'&gt;/'),' /'))">
