@@ -240,7 +240,7 @@ echo Size after install: $(sudo du -skx --exclude home $BUILD_DIR) >> $INFOLOG
           </xsl:call-template>
         </xsl:if>
         <xsl:if test="not($test-seen)">
-          <xsl:if test="not($doc-seen)">
+          <xsl:if test="not($doc-seen) and not($root-seen)">
             <xsl:call-template name="end-make">
               <xsl:with-param name="want-stats" select="$want-stats"/>
             </xsl:call-template>
