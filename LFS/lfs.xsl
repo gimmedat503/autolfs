@@ -1151,33 +1151,33 @@ LOGLEVEL="</xsl:text>
         <xsl:choose>
           <xsl:when test="contains(string(), 'make -k')">
             <xsl:value-of select="$instructions"/>
-            <xsl:if test="not($eof-seen)">
-              <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1 || true</xsl:text>
-            </xsl:if>
-            <xsl:text>&#xA;</xsl:text>
           </xsl:when>
           <xsl:when test="contains($instructions, 'make')">
             <xsl:value-of select="substring-before($instructions, 'make')"/>
             <xsl:text>make -k</xsl:text>
             <xsl:value-of select="substring-after($instructions, 'make')"/>
-            <xsl:if test="not($eof-seen)">
-              <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1 || true</xsl:text>
-            </xsl:if>
-            <xsl:text>&#xA;</xsl:text>
           </xsl:when>
           <xsl:otherwise>
             <xsl:value-of select="$instructions"/>
-            <xsl:if
-              test="not(contains($instructions, '&gt;&gt;')) and
-                    not(contains($instructions, '&gt; /')) and
-                    not($eof-seen) and
-                    substring($instructions,
-                              string-length($instructions)) != '\'">
-              <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1 || true</xsl:text>
-            </xsl:if>
-            <xsl:text>&#xA;</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
+        <xsl:choose>
+          <xsl:when test="$eof-seen or
+                substring($instructions,
+                string-length($instructions)) = '\'"/><!-- do nothing -->
+          <xsl:when test="contains($instructions, '&gt;&gt;') or
+                          contains($instructions, '&amp;&gt;')">
+            <xsl:text> || true</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1 || true</xsl:text>
+          </xsl:otherwise>
+        </xsl:choose>
+        <xsl:text>&#xA;</xsl:text>
+        <xsl:if test="contains($instructions,'vim-test.log')">
+          <xsl:text>cat vim-test.log &gt;&gt; $TEST_LOG
+</xsl:text>
+        </xsl:if>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
