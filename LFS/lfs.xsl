@@ -1174,9 +1174,13 @@ LOGLEVEL="</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
         <xsl:text>&#xA;</xsl:text>
-        <xsl:if test="contains($instructions,'vim-test.log')">
-          <xsl:text>cat vim-test.log &gt;&gt; $TEST_LOG
-</xsl:text>
+	<xsl:if test="contains(normalize-space($instructions),
+	                       '&amp;&gt; vim-test.log')">
+          <xsl:call-template name="comment-test">
+            <xsl:with-param name="instructions"
+                            select="'cat vim-test.log'"/>
+            <xsl:with-param name="eof-seen" select="$eof-seen"/>
+          </xsl:call-template>
         </xsl:if>
       </xsl:otherwise>
     </xsl:choose>
