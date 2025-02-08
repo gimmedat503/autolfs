@@ -189,7 +189,8 @@ fi
 # the negation of GETPKG, because if we get the source files, we test
 # the mismatch between directory name and version when receiving the file.
 TEST_MISMATCH=y
-if [ "$GETPKG" = y ]; then TEST_MISMATCH=n; fi
+# TODO: add TEST_MISMATCH to Config.in
+#if [ "$GETPKG" = y ]; then TEST_MISMATCH=n; fi
 
 # Sanity check on the location of $BUILDDIR / $JHALFSDIR
 CWD="$(cd "$(dirname "$0")" && pwd)"
