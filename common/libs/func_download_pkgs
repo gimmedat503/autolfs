@@ -125,6 +125,7 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
         echo "Storing file:<$FILE> in the package archive"
         cp -f "$FILE" "${SRC_ARCHIVE}"
    fi
+   if false; then : # remove this because it adds bzip2 as a prereq.
     # Check for version mismatch between what is known to the book and
     # the extracted source directory
     PKGVER=$(xsltproc --stringparam package "$URL" $JHALFSDIR/pkgver.xsl $JHALFSDIR/prbook.xml)
@@ -139,6 +140,7 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
         error_message Package version $PKGVER does not match extracted directory name $PKGDIR
       fi
     fi
+   fi # end of removed code
   done
 
   if [[ -s MISSING_FILES.DMP ]]; then
