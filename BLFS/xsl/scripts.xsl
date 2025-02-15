@@ -349,7 +349,7 @@ case $PACKAGE in
      JH_UNPACKDIR=`head -n1 unpacked | cut  -d" " -f2 | sed 's@^\./@@;s@/.*@@'`
      ;;
   *.zip)
-     zipinfo -1 $SRC_DIR/$PACKAGE &gt; unpacked
+     bsdtar --list -f $SRC_DIR/$PACKAGE &gt; unpacked
      JH_UNPACKDIR="$(sed 's@/.*@@' unpacked | uniq )"
      if test $(wc -w &lt;&lt;&lt; $JH_UNPACKDIR) -eq 1; then
        unzip $SRC_DIR/$PACKAGE
