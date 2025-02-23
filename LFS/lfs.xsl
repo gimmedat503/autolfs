@@ -8,22 +8,24 @@
 
 <!-- Parameters -->
 
-  <!-- User name of the temporary user (lfs in book) -->
-  <xsl:param name="luser" select="'lfs'"/>
-  <!-- Group name of the temporary user (lfs in book) -->
-  <xsl:param name="lgroup" select="'lfs'"/>
-  <!-- use package management ?
-       n = no, original behavior
-       y = yes, add PKG_DEST to scripts in install commands of chapter08-10
-  -->
-  <xsl:param name="pkgmngt" select="'n'"/>
+  <!-- User name and group name of the temporary user
+       formatted as user:group (lfs:lfs in book) -->
+  <xsl:param name="luser-lgroup" select="'lfs:lfs'"/>
+  <!-- split it -->
+  <xsl:variable name="luser" select="substring-before($luser-lgroup, ':')"/>
+  <xsl:variable name="lgroup" select="substring-after($luser-lgroup, ':')"/>
 
-  <!-- Package management with "porg style" ?
-       n = no,  same as pkgmngt description above
-       y = yes, wrap install commands of chapter08-10 into a bash function.
-                note that pkgmngt must be 'y' in this case
+  <!-- use package management ?
+       nn = no, original behavior
+       ny = Meaningless
+       yn = yes, add PKG_DEST to scripts in install commands of chapter08-10
+       yy = yes, wrap install commands of chapter08-10 into a bash function
+       (porg style).
   -->
-  <xsl:param name="wrap-install" select='"n"'/>
+  <xsl:param name="pkgmngt-wrap" select="'nn'"/>
+  <!-- Split it -->
+  <xsl:variable name="pkgmngt" select="substring($pkgmngt-wrap,1,1)"/>
+  <xsl:variable name="wrap-install" select='substring($pkgmngt-wrap,2,1)'/>
 
   <!-- Run test suites?
        0 = none
@@ -73,13 +75,16 @@
   <xsl:param name='nameserver1' select='"10.0.2.3"'/>
   <xsl:param name='nameserver2' select='"8.8.8.8"'/>
 
-  <!-- Console parameters: font, fontmap, unicode (y/n), keymap, local (y:
-       hardware clock set to local time/n:hardware clock set to UTC)
-       and log-level -->
-  <xsl:param name='font'      select="'lat0-16'"/>
-  <xsl:param name='keymap'    select="'us'"/>
-  <xsl:param name='local'     select="'n'"/>
-  <xsl:param name='log-level' select="'4'"/>
+  <!-- Console parameters: font, keymap, local (y:
+       hardware clock set to local time/n:hardware clock set to UTC),
+  and log-level.
+  Formatted as font@keymap:local/log-level-->
+  <xsl:param name='console'   select="'lat0-16@us:n/4'"/>
+  <!-- Split it -->
+  <xsl:variable name='font'      select="substring-before($console,'@')"/>
+  <xsl:variable name='keymap'    select="substring-before(substring-after($console,'@'),':')"/>
+  <xsl:variable name='local'     select="substring-before(substring-after($console,':'),'/')"/>
+  <xsl:variable name='log-level' select="substring-after($console,'/')"/>
 
   <!-- The scripts root is needed for printing disk usage -->
   <xsl:param name='script-root' select="'jhalfs'"/>
