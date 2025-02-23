@@ -627,7 +627,12 @@ unset OLD_PKGDIR
       <xsl:when test="contains(string(.),'secondary')">
         <xsl:value-of select="$nameserver2"/>
       </xsl:when>
+      <!-- Old sysV books have 192.168.1.1 as ip in /etc/hosts,
+      new ones have 192.168.1.2. -->
       <xsl:when test="contains(string(.),'192.168.1.1')">
+        <xsl:value-of select="$ip"/>
+      </xsl:when>
+      <xsl:when test="contains(string(.),'192.168.1.2')">
         <xsl:value-of select="$ip"/>
       </xsl:when>
       <xsl:when test="contains(string(.),'192.168.0.2')">
