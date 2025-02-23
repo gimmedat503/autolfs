@@ -34,6 +34,9 @@
   -->
   <xsl:param name="testsuite" select="1"/>
 
+  <!-- Should we keep build directories in chapter 8 ? -->
+  <xsl:param name="keepdir" select="'n'"/>
+
   <!-- Parallelism (LFS >= 12.1) -->
   <xsl:param name="jobs" select="1"/>
 
@@ -192,7 +195,9 @@ otherwise it is in /bin.-->
       </xsl:if>
       <xsl:if test="ancestor::chapter/@id != 'chapter-final-preps'">
         <xsl:text>echo -e "\n\nTotalseconds: $SECONDS\n"&#xA;</xsl:text>
-        <xsl:call-template name="end-script"/>
+        <xsl:call-template name="end-script">
+          <xsl:with-param name="chap-num" select="$chap-num"/>
+        </xsl:call-template>
       </xsl:if>
       <xsl:text>exit&#xA;</xsl:text>
     </exsl:document>
@@ -1313,6 +1318,7 @@ export MAKEFLAGS="-j</xsl:text>
   </xsl:template>
 
   <xsl:template name="end-script">
+    <xsl:param name="chap-num" select="5"/>
     <xsl:text>
 # End of LFS book script
 
@@ -1320,9 +1326,12 @@ echo "KB: $(du -skx --exclude=lost+found --exclude=var/lib --exclude=$SCRIPT_ROO
 </xsl:text>
     <xsl:if test="sect2[@role='installation']">
       <xsl:text>cd $SRC_DIR
-rm -rf $PKGDIR
+</xsl:text>
+      <xsl:if test="$keepdir!='y' or $chap-num!=8">
+        <xsl:text>rm -rf $PKGDIR
 if [ -d "${PKGDIR%-*}-build" ]; then  rm -rf ${PKGDIR%-*}-build; fi
 </xsl:text>
+      </xsl:if>
     </xsl:if>
   </xsl:template>
 

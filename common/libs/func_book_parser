@@ -85,6 +85,7 @@ extract_commands() {         #
   xsltproc --nonet                                      \
            --stringparam luser-lgroup   "$LUSER:$LGROUP"\
            --stringparam testsuite      "$TEST"         \
+           --stringparam keepdir        "$KEEPDIR"      \
            --stringparam ncurses5       "$NCURSES5"     \
            --stringparam strip          "$STRIP"        \
            --stringparam del-la-files   "$DEL_LA_FILES" \

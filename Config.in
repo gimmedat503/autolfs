@@ -570,6 +570,17 @@ depends on !BOOK_BLFS
         default    "2"    if TST_2
     #--- End Test Suites
 
+    #--- Keep dirs in chapter eight
+    config KEEPDIR
+        bool     "Keep build directory in chapter 8"
+        default n
+        help
+            If you check this option, the build directories will not
+            be removed after installation of packages in chapter 8.
+            This is for being able to debug failed tests or other non
+            fatal failures. But mhis lay consume a lot of disk space.
+    #--- End Keep dirs in chapter eight
+
     #--- Package Management
     config  PKGMNGT
         bool    "Package management"
