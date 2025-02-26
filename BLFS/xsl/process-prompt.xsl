@@ -82,7 +82,7 @@ PROMPT_EOF</xsl:text>
         <xsl:if test="$root-seen">
           <xsl:call-template name="end-root"/>
         </xsl:if>
-        <xsl:apply-templates select="$current-instr/userinput"/>
+        <xsl:apply-templates select="$current-instr"/>
         <xsl:call-template name="process-prompt">
           <xsl:with-param
              name="instructions"
