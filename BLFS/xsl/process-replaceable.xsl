@@ -142,8 +142,7 @@
         <xsl:if test="contains(preceding-sibling::text()[1],'kinit')">
           <xsl:text> &lt;&lt; PASS_EOF
 lupw
-PASS_EOF
-</xsl:text>
+PASS_EOF</xsl:text>
         </xsl:if>
       </xsl:when>
 <!-- for xorg environment. Note that libreoffice too uses &lt;PREFIX&gt; -->
