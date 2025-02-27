@@ -17,6 +17,7 @@
          contains(string($current-instr),'gtweak') or
          contains(string($current-instr),'query-immodules') or
          contains(string($current-instr),'chgrp -v mail') or
+         contains(string($current-instr),'vector-fill.so') or
          contains(string($current-instr),'rst*.py') or
          contains(string($current-instr),'gnome-control-center')">
 ]>
