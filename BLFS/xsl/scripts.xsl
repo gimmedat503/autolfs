@@ -588,7 +588,10 @@ echo "</xsl:text>
   <xsl:template match="itemizedlist" mode="additional">
   <!-- The normal layout is "one listitem"<->"one url", but some devs
        find amusing to have FTP and/or MD5sum listitems, or to
-       enclose the download information inside a simplelist tag... -->
+       enclose the download information inside a simplelist tag...
+       We also have now only <para>'s in each listitem, one for
+       url, one for md5 and one for size (libreoffice case
+       since Nov 2024). -->
     <xsl:for-each select="listitem[.//ulink]">
       <xsl:choose>
         <!-- hopefully, there was a HTTP line before -->
@@ -609,10 +612,19 @@ echo "</xsl:text>
                            para[contains(string(),'FTP')]/ulink/@url"/>
             </xsl:with-param>
             <xsl:with-param name="md5">
-              <xsl:apply-templates
-                   select="following-sibling::listitem[position()&lt;3]/
-                           para[contains(string(),'MD5')]"
-                   mode="md5"/>
+              <xsl:choose>
+                <xsl:when test="./para[contains(string(),'MD5')]">
+                  <xsl:apply-templates
+                     select="./para[contains(string(),'MD5')]"
+                     mode="md5"/>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:apply-templates
+                       select="following-sibling::listitem[position()&lt;3]/
+                               para[contains(string(),'MD5')]"
+                       mode="md5"/>
+                </xsl:otherwise>
+              </xsl:choose>
             </xsl:with-param>
             <xsl:with-param name="varname">
               <xsl:choose>
