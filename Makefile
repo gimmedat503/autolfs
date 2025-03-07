@@ -11,6 +11,8 @@ all: menuconfig
 	@$$(grep RUN_ME configuration 2>/dev/null | sed -e 's@RUN_ME=\"@@' -e 's@\"@@')
 
 menuconfig:
+	@if grep -E -q '(COMMIT="trunk"|COMMIT="multilib")' configuration; \
+		then sed -i /COMMIT/d configuration; fi
 	@cp -a configuration configuration.old 2>/dev/null || true
 	@CONFIG_="" KCONFIG_CONFIG=configuration \
 	    python3 $(CONFIG)/menuconfig.py $(CONFIG_CONFIG_IN)
