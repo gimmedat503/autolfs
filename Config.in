@@ -86,7 +86,8 @@ menu "BOOK Settings"
 
     config    COMMIT
         string    "Which point in git history?"
-        default    "trunk"
+        default    "trunk" if LFS_MULTILIB_NO
+        default    "multilib" if ! LFS_MULTILIB_NO
         depends on    BRANCH
         help
             You can select the development version of the book using "trunk".
