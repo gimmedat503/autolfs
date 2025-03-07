@@ -81,6 +81,14 @@ extract_commands() {         #
            $BOOK/stylesheets/lfs-xsl/profile.xsl        \
            $BOOK/index.xml >> $LOGDIR/$LOG 2>&1
 
+  # Make sure the book contains arch attributes if multilib is asked
+  if [ "$MULTILIB" != default ] && ! grep -q 'arch[="* ]*ml' prbook.xml; then
+    echo You have asked for multilib, but the book is not multilib
+    echo -n "Do you want to continue? yes/no (no) "
+    read -r ANSWER
+    if [ "$ANSWER" != yes ]; then exit; fi
+  fi
+
   # Use the profiled book for generating the scriptlets
   xsltproc --nonet                                      \
            --stringparam luser-lgroup   "$LUSER:$LGROUP"\
