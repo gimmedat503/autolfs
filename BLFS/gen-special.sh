@@ -59,12 +59,16 @@ EOF
 
 # Non-versionned packages. Add to NV_LIST if you need more.
 for nv_id in $NV_LIST; do
-# Actually, kf6-intro contains some version info, so should be
+# Actually, kf6-intro and tex-path contain some version info, so should be
 # versioned. For other packages, we define version to 1.0.0
 # because the DTD needs a version tag.
   DUM_VER=1.0.0
   if [ $nv_id = kf6-intro ]; then
     DUM_VER=$(grep kf6-version $BLFS_DIR/packages.ent | \
+              sed 's/[^"]*"\([^"]*\).*/\1/')
+  fi
+  if [ $nv_id = tex-path ]; then
+    DUM_VER=$(grep texlive-year $BLFS_DIR/packages.ent | \
               sed 's/[^"]*"\([^"]*\).*/\1/')
   fi
   cat >>$SPECIAL_FILE << EOF
