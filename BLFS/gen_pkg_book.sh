@@ -234,6 +234,10 @@ $inst_v"
     else
         versions=$(xsltproc --stringparam package "$p" $GetVersion $PackFile)
     fi
+# "sort -V" fails to consider that 1.2.3-rc2 is lower than 1.2.3, for
+# example (or 1.2.3rc2 respective to 1.2.3).
+# Only "~" is lower than anything...
+versions=$(echo "$versions" | sed -E 's/[~-_]?([rR][cC][[:digit:]]*)$/~\1/')
     if [ "$versions" != "$(sort -V <<<$versions)" ]; then
         LIST="$LIST $p"
     fi
