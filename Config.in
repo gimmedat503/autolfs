@@ -86,7 +86,7 @@ menu "BOOK Settings"
 
     config    COMMIT
         string    "Which point in git history?"
-        default    "trunk" if LFS_MULTILIB_NO
+        default    "trunk" if LFS_MULTILIB_NO || BOOK_BLFS
         default    "multilib" if ! LFS_MULTILIB_NO
         depends on    BRANCH
         help
