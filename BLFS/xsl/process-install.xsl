@@ -19,7 +19,8 @@
          contains(string($current-instr),'chgrp -v mail') or
          contains(string($current-instr),'vector-fill.so') or
          contains(string($current-instr),'rst*.py') or
-         contains(string($current-instr),'gnome-control-center')">
+         contains(string($current-instr),'gnome-control-center') or
+         contains(string($current-instr),'Gimp')">
 ]>
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
