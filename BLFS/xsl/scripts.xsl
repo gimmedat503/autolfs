@@ -321,59 +321,19 @@ cd $SRC_DIR</xsl:text>
         <xsl:apply-templates select=".//screen[./userinput]"/>
       </xsl:when>
 
-      <xsl:when test="@role = 'installation' and
-                      not(preceding-sibling::sect2[@role = 'installation'])">
-        <xsl:text>
-cd $BUILD_DIR
-find . -maxdepth 1 -mindepth 1 -type d | xargs </xsl:text>
-        <xsl:if test="$sudo='y'">
-          <xsl:text>sudo </xsl:text>
-        </xsl:if>
-        <xsl:text>rm -rf
-</xsl:text>
-        <!-- If stats are requested, insert the start size -->
-        <xsl:if test="$want-stats">
-          <xsl:text>
-echo Start Size: $(sudo du -skx --exclude home $BUILD_DIR) >> $INFOLOG
-</xsl:text>
+      <xsl:when test="@role = 'installation'">
+        <xsl:if test="not(preceding-sibling::sect2[@role = 'installation'])">
+          <xsl:call-template name="unpack">
+            <xsl:with-param name="want-stats" select="$want-stats"/>
+          </xsl:call-template>
         </xsl:if>
 
-        <xsl:text>
-case $PACKAGE in
-  *.tar.gz|*.tar.bz2|*.tar.xz|*.tgz|*.tar.lzma)
-     tar -xvf $SRC_DIR/$PACKAGE &gt; unpacked
-     JH_UNPACKDIR=`grep '[^./]\+' unpacked | head -n1 | sed 's@^\./@@;s@/.*@@'`
-     ;;
-  *.tar.lz)
-     bsdtar -xvf $SRC_DIR/$PACKAGE 2&gt; unpacked
-     JH_UNPACKDIR=`head -n1 unpacked | cut  -d" " -f2 | sed 's@^\./@@;s@/.*@@'`
-     ;;
-  *.zip)
-     bsdtar --list -f $SRC_DIR/$PACKAGE &gt; unpacked
-     JH_UNPACKDIR="$(sed 's@/.*@@' unpacked | uniq )"
-     if test $(wc -w &lt;&lt;&lt; $JH_UNPACKDIR) -eq 1; then
-       unzip $SRC_DIR/$PACKAGE
-     else
-       JH_UNPACKDIR=${PACKAGE%.zip}
-       unzip -d $JH_UNPACKDIR $SRC_DIR/$PACKAGE
-     fi
-     ;;
-  *)
-     JH_UNPACKDIR=$JH_PKG_DIR-build
-     mkdir $JH_UNPACKDIR
-     cp $SRC_DIR/$PACKAGE $JH_UNPACKDIR
-     ADDITIONAL="$(find . -mindepth 1 -maxdepth 1 -type l)"
-     if [ -n "$ADDITIONAL" ]; then
-         cp $ADDITIONAL $JH_UNPACKDIR
-     fi
-     ;;
-esac
-export JH_UNPACKDIR
-cd $JH_UNPACKDIR
-</xsl:text>
         <!-- If stats are requested, insert the start time -->
         <xsl:if test="$want-stats">
           <xsl:text>
+echo Starting \"</xsl:text>
+	  <xsl:value-of select="./title"/>
+	  <xsl:text>\" >> $INFOLOG
 echo Start Time: ${SECONDS} >> $INFOLOG
 </xsl:text>
         </xsl:if>
@@ -1153,6 +1113,59 @@ pip3 install -I --root $PKG_DEST</xsl:text>
         <xsl:copy-of select="$instructions"/>
       </xsl:otherwise>
     </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="unpack">
+    <xsl:param name="want-stats" select="false"/>
+    <xsl:text>
+cd $BUILD_DIR
+find . -maxdepth 1 -mindepth 1 -type d | xargs </xsl:text>
+    <xsl:if test="$sudo='y'">
+      <xsl:text>sudo </xsl:text>
+    </xsl:if>
+    <xsl:text>rm -rf
+</xsl:text>
+        <!-- If stats are requested, insert the start size -->
+    <xsl:if test="$want-stats">
+      <xsl:text>
+echo Start Size: $(sudo du -skx --exclude home $BUILD_DIR) >> $INFOLOG
+</xsl:text>
+    </xsl:if>
+
+    <xsl:text>
+case $PACKAGE in
+  *.tar.gz|*.tar.bz2|*.tar.xz|*.tgz|*.tar.lzma)
+     tar -xvf $SRC_DIR/$PACKAGE &gt; unpacked
+     JH_UNPACKDIR=`grep '[^./]\+' unpacked | head -n1 | sed 's@^\./@@;s@/.*@@'`
+     ;;
+  *.tar.lz)
+     bsdtar -xvf $SRC_DIR/$PACKAGE 2&gt; unpacked
+     JH_UNPACKDIR=`head -n1 unpacked | cut  -d" " -f2 | sed 's@^\./@@;s@/.*@@'`
+     ;;
+  *.zip)
+     bsdtar --list -f $SRC_DIR/$PACKAGE &gt; unpacked
+     JH_UNPACKDIR="$(sed 's@/.*@@' unpacked | uniq )"
+     if test $(wc -w &lt;&lt;&lt; $JH_UNPACKDIR) -eq 1; then
+       unzip $SRC_DIR/$PACKAGE
+     else
+       JH_UNPACKDIR=${PACKAGE%.zip}
+       unzip -d $JH_UNPACKDIR $SRC_DIR/$PACKAGE
+     fi
+     ;;
+  *)
+     JH_UNPACKDIR=$JH_PKG_DIR-build
+     mkdir $JH_UNPACKDIR
+     cp $SRC_DIR/$PACKAGE $JH_UNPACKDIR
+     ADDITIONAL="$(find . -mindepth 1 -maxdepth 1 -type l)"
+     if [ -n "$ADDITIONAL" ]; then
+         cp $ADDITIONAL $JH_UNPACKDIR
+     fi
+     ;;
+esac
+export JH_UNPACKDIR
+cd $JH_UNPACKDIR
+</xsl:text>
+
   </xsl:template>
 
 </xsl:stylesheet>
