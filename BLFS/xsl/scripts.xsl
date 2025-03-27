@@ -1000,7 +1000,7 @@ DESTDIR=$PKG_DEST ninja</xsl:text>
           </xsl:when>
           <xsl:otherwise>
             <xsl:text>
-pip3 install -I --root $PKG_DEST</xsl:text>
+pip3 install -I --no-deps --root $PKG_DEST</xsl:text>
               <xsl:call-template name="outputpkgdest">
                 <xsl:with-param
                     name="outputstring"
