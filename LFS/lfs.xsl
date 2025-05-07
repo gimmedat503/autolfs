@@ -650,7 +650,9 @@ unset OLD_PKGDIR
         <xsl:text>.</xsl:text>
         <xsl:value-of select="$domain"/>
       </xsl:when>
-      <xsl:when test="contains(string(.),'alias')"/>
+      <xsl:when test="contains(string(.),'alias')">
+        <xsl:value-of select="$hostname"/>
+      </xsl:when>
       <xsl:when test="contains(string(.),'&lt;lfs&gt;')">
         <xsl:value-of select="$hostname"/>
       </xsl:when>
